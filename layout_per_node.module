@@ -1,0 +1,194 @@
+<?php
+
+/**
+ * @file
+ * Contains layout_per_node.module.
+ */
+
+use Drupal\Component\Serialization\Json;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Url;
+use Drupal\field_layout\Display\EntityDisplayWithLayoutInterface;
+use Drupal\layout_per_node\LayoutEditorBuilder;
+use Drupal\layout_per_node\Controller\LayoutEditorController;
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ *
+ * Add "Layout Editor," "Switch Layouts," and "Save Layout" to primary tabs.
+ */
+function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
+  $cache = [
+    'contexts' => [
+      'user.permissions',
+      'route',
+      'url.query_args:layout-editor',
+      'url.query_args:layout',
+    ],
+  ];
+
+  if ($nid = LayoutEditorController::eligibleNode()) {
+    $query = \Drupal::request()->query->all();
+    $data['tabs'][0]['node.layout_editor'] = [
+      '#theme' => 'menu_local_task',
+      '#link' => [
+        'title' => t('Layout Editor'),
+        'url' => Url::fromRoute('<current>', [], ['query' => ['layout-editor' => '1']]),
+      ],
+      '#cache' => $cache,
+    ];
+    // The user is in "Layout Editor" mode. Add Switch & Save Layout options.
+    if (isset($query['layout-editor'])) {
+      $data['tabs'][0]['node.layout_editor']['#link'] = [
+        'title' => t('Exit Layout Editor'),
+        'url' => Url::fromRoute('<current>'),
+      ];
+      $data['tabs'][0]['node.switch_layouts'] = [
+        '#theme' => 'menu_local_task',
+        '#link' => [
+          'title' => t('Switch Layouts'),
+          'url' => Url::fromRoute('layout_per_node.switch_layouts', [], ['query' => ['node' => $nid]]),
+          'localized_options' => [
+            'attributes' => [
+              'class' => ['use-ajax'],
+              'data-dialog-type' => 'modal',
+              'data-dialog-options' => Json::encode(['width' => 1000, 'max-height' => 'none']),
+            ],
+          ],
+        ],
+        '#cache' => $cache,
+      ];
+      $data['tabs'][0]['node.save_layout'] = [
+        '#theme' => 'menu_local_task',
+        '#link' => [
+          'title' => t('Save Layout'),
+          'url' => Url::fromRoute('<current>'),
+          'localized_options' => [
+            'attributes' => [
+              'id' => 'layout-editor-save',
+            ],
+          ],
+        ],
+        '#cache' => $cache,
+      ];
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_base_field_info().
+ *
+ * Adds a "layout" column to the base node_field_data table.
+ */
+function layout_per_node_entity_base_field_info(EntityTypeInterface $entity_type) {
+  if ($entity_type->id() === 'node') {
+    $field = array();
+    $field['layout'] = BaseFieldDefinition::create('map')
+      ->setLabel(t('@label', ['@label' => 'layout']))
+      ->setDescription(t('@description', ['@description' => 'Layout Editor values']))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE)
+      ->setDefaultValue(0);
+    return $field;
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ *
+ * Add an "Enable layout per node" checkbox to content type Edit form.
+ */
+function layout_per_node_form_node_type_edit_form_alter(&$form, FormStateInterface $form_state) {
+  $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
+  $config = \Drupal::config('layout_per_node.enabled');
+  $enabled = $config->get($node_type->id());
+  $config = \Drupal::config('layout_per_node.allowed');
+  $allowed = $config->get($node_type->id());
+  $default_layouts = !empty($allowed) ? array_values($allowed) : [];
+  $form['layout_editor'] = array(
+    '#type' => 'details',
+    '#title' => 'Layout Editor',
+    '#group' => 'additional_settings',
+  );
+  $form['layout_editor']['layout_per_node_enabled'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Enable layout per node',
+    '#default_value' => $enabled,
+    '#description' => 'Allow users with access to create/edit this content type
+    to use the drag-and-drop layout editor when viewing the node.',
+  );
+  $layoutPluginManager = \Drupal::service('plugin.manager.core.layout');
+  foreach ($layoutPluginManager->getLayoutOptions() as $group => $layouts) {
+    foreach ($layouts as $key => $value) {
+      $available_layouts[$key] = $value;
+    }
+  }
+  $form['layout_editor']['layout_per_node_allowed'] = [
+    '#title' => 'Allowed Layouts',
+    '#description' => 'If no layouts are selected, all will remain available.',
+    '#type' => 'checkboxes',
+    '#options' => $available_layouts,
+    '#default_value' => $default_layouts,
+    '#states' => [
+      'invisible' => [
+        ':input[name="layout_per_node_enabled"]' => ['checked' => FALSE],
+      ],
+    ],
+  ];
+  $form['actions']['submit']['#submit'][] = 'layout_per_node_node_type_edit_form_submit';
+}
+
+/**
+ * Submit handler for node type forms.
+ */
+function layout_per_node_node_type_edit_form_submit($form, FormStateInterface $form_state) {
+  $values = $form_state->getValues();
+  if (isset($values['layout_per_node_enabled'])) {
+    $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
+    $config = \Drupal::service('config.factory')->getEditable('layout_per_node.enabled');
+    $config->set($node_type->id(), $values['layout_per_node_enabled']);
+    $config->save();
+  }
+  if (isset($values['layout_per_node_allowed'])) {
+    $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
+    $config = \Drupal::service('config.factory')->getEditable('layout_per_node.allowed');
+    $config->set($node_type->id(), $values['layout_per_node_allowed']);
+    $config->save();
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ *
+ * Move field_layout_entity_view_alter() to the end of the list.
+ */
+function layout_per_node_module_implements_alter(&$implementations, $hook) {
+  if (in_array($hook, ['entity_view_alter', 'node_view_alter'])) {
+    if (isset($implementations['field_layout'])) {
+      $group = $implementations['field_layout'];
+      unset($implementations['field_layout']);
+      $implementations['field_layout'] = $group;
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_view_alter().
+ *
+ * Overrides the default entity view display provided by field_layout for
+ * eligible node types.
+ */
+function layout_per_node_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  if ($display instanceof EntityDisplayWithLayoutInterface && $entity->getEntityType()->id() == 'node') {
+    $config = \Drupal::config('layout_per_node.enabled');
+    $default_value = $config->get($entity->getType());
+    if ($default_value == 1) {
+      \Drupal::classResolver()->getInstanceFromDefinition(LayoutEditorBuilder::class)
+        ->buildView($build, $display);
+    }
+  }
+}

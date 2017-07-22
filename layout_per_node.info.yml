@@ -1,0 +1,7 @@
+name: Layout Per Node
+type: module
+description: Set layout and position fields/blocks on a per-node basis.
+core: 8.x
+package: Layout
+dependencies:
+  - field_layout

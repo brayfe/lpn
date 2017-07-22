@@ -1,0 +1,30 @@
+layout_per_node.get:
+  path: 'admin/config/layout-per-node/get'
+  defaults:
+    _controller: '\Drupal\layout_per_node\Controller\LayoutEditorController::get'
+  requirements:
+    _permission: 'use layout per node'
+
+layout_per_node.set:
+  path: 'admin/config/layout-per-node/set'
+  defaults:
+    _controller: '\Drupal\layout_per_node\Controller\LayoutEditorController::set'
+  requirements:
+    _permission: 'use layout per node'
+
+layout_per_node.add_content:
+  path: 'admin/config/layout-per-node/{node}/{region}'
+  defaults:
+    _form: '\Drupal\layout_per_node\Form\AddContentForm'
+    _title: 'Add Content'
+  requirements:
+    _permission: 'use layout per node'
+    node: ^[0-9]+
+
+layout_per_node.switch_layouts:
+  path: '/layout-editor/switch_layouts'
+  defaults:
+    _form: '\Drupal\layout_per_node\Form\SwitchLayoutsForm'
+    _title: 'Switch Layouts'
+  requirements:
+    _permission: 'use layout per node'
