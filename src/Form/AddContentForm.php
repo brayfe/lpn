@@ -130,14 +130,20 @@ class AddContentForm extends FormBase {
     $return = [];
     $disallowed = ['promote'];
     if ($entity = Node::load($nid)) {
+      $display = entity_get_display('node', $entity->getType(), 'default');
+      $displayed_fields = array_keys($display->getComponents());
       $fields = $entity->getFields(FALSE);
+
       foreach ($fields as $field => $def) {
-        if (!in_array($field, $disallowed)) {
+        // Only allow fields which are not disallowed (see above) AND
+        // which are set to a non-hidden region in 'Manage View'.
+        if (!in_array($field, $disallowed) && in_array($field, $displayed_fields)) {
           $definition = $entity->getFieldDefinition($field);
-          // Only offer fields that will display with actual content.
-          // This is admittedly a hacky way to verify empty content,
-          // but isEmpty() will not work on complex fields.
           if (!empty($definition->getTargetBundle())) {
+            $fieldobj = $entity->{$field};
+            // Only offer fields that will display with actual content.
+            // This is admittedly a hacky way to verify empty content,
+            // but isEmpty() will not work on complex fields.
             $view = $entity->$field->view(['label' => 'hidden']);
             $value = trim(strip_tags(render($view), '<a><img>'));
             if ($value != '') {
