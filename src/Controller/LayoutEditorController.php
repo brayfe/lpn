@@ -57,10 +57,15 @@ class LayoutEditorController extends ControllerBase {
   /**
    * Simple input-output method for returning a render array for fields.
    */
-  protected static function renderableField($nid, $field, $nolabel = TRUE) {
+  protected static function renderableField($nid, $field_name) {
     $node = Node::load($nid);
-    $config = $nolabel ? [] : ['label' => 'hidden'];
-    return $node->$field->view($config);
+    $entityType = 'node';
+    // Before building a renderable object, we need to get the display of this
+    // field in the context of the node settings.
+    $display = entity_get_display($entityType, $node->getType(), 'default');
+    $viewBuilder = \Drupal::entityTypeManager()->getViewBuilder($entityType);
+    $fieldRenderable = $viewBuilder->viewField($node->{$field_name}, $display->getComponent($field_name));
+    return $fieldRenderable;
   }
 
   /**
