@@ -116,12 +116,10 @@ class AddContentForm extends FormBase {
    * Custom callback to create markup with available fields.
    */
   protected function buildFields($nid) {
+    $form = [];
     $fields = $this->getAvailableFields($nid);
     foreach ($fields as $field => $label) {
       $form[$field]['#markup'] = $this->renderButton($field, $label, 'field');
-    }
-    if ($fields == NULL) {
-      $form = [];
     }
     return $form;
   }
