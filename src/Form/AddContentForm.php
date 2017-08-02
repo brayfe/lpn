@@ -120,6 +120,9 @@ class AddContentForm extends FormBase {
     foreach ($fields as $field => $label) {
       $form[$field]['#markup'] = $this->renderButton($field, $label, 'field');
     }
+    if ($fields == NULL) {
+      $form = [];
+    }
     return $form;
   }
 
