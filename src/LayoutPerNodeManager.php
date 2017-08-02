@@ -14,15 +14,15 @@ class LayoutPerNodeManager {
    * @param array $layout_data
    * This should be an array with layout information.
    * Example: Add a block to the 'first' and 'second' region of 'twocol' layout:
-    $layout_data = [
-      'twocol' => [
-        'first' => [
-          '71393b1f-d47c-49df-9d58-c2343cf0f931' => "block_content",
-        ],
-        'second' => [
-          '2834fc70-714b-4352-9c11-eedf72a1893e' => "block_content",
-       ]
-    ];
+   * $layout_data = [
+   *   'twocol' => [
+   *     'first' => [
+   *       '71393b1f-d47c-49df-9d58-c2343cf0f931' => "block_content",
+   *     ],
+   *     'second' => [
+   *       '2834fc70-714b-4352-9c11-eedf72a1893e' => "block_content",
+   *    ]
+   * ];
    * @return bool
    */
   public function updateContent($nid, $layout_data) {
