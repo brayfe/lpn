@@ -4,6 +4,7 @@ namespace Drupal\layout_per_node\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\layout_per_node\LayoutPerNodeManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\node\Entity\Node;
@@ -169,31 +170,8 @@ class LayoutEditorController extends ControllerBase {
     $output = [];
     $nid = $request->request->get('nid');
     $layout_data = $request->request->get('layout');
-    $node = Node::load($nid);
-    if ($node && !empty($layout_data)) {
-      // Prepare data sent via AJAX POST request for storage on the node.
-      // The two string_replace functions convert CSS hypens to machine_names.
-      foreach ($layout_data as $layout_raw => $values) {
-        $layout_id = 'layout_' . str_replace('-', '_', $layout_raw);
-        foreach ($values as $region => $contents) {
-          $region = str_replace('-', '_', $region);
-          foreach ($contents as $id => $type) {
-            $output[$layout_id][$region][$id] = $type;
-          }
-        }
-      }
-      $existing = $node->get('layout')->getValue();
-      if (isset($existing[0][$layout_id])) {
-        unset($existing[0][$layout_id]);
-      }
-      $merged = array_merge($output, $existing[0]);
-      $node->layout = $merged;
-      $node->setNewRevision();
-      $node->setRevisionCreationTime(time());
-      $node->setRevisionLogMessage('Layout updated');
-      $node->setRevisionTranslationAffected(TRUE);
-      $node->save();
-    }
+    $lpnManager = new LayoutPerNodeManager();
+    $lpnManager->updateContent($nid, $layout_data);
     // Return a response regardless of whether we saved or not.
     $response = new Response();
     $response->setContent(json_encode(array('content' => $nid)));
