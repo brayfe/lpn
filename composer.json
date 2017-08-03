@@ -1,0 +1,17 @@
+{
+    "name": "utexas/layout_per_node",
+    "description": "A PHP library for generating filler text from Project Gutenberg books",
+    "type": "utexas-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mark Fullmer",
+            "email": "jfullmer@austin.utexas.edu",
+            "homepage": "https://markfullmer.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "composer/installers": "~1.0"
+    }
+}
