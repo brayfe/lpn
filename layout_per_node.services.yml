@@ -1,0 +1,4 @@
+services:
+  layout_per_node.layout_per_node_manager:
+    class: Drupal\layout_per_node\Services\LayoutPerNodeManagerService
+    arguments: []

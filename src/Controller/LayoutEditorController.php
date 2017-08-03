@@ -2,9 +2,11 @@
 
 namespace Drupal\layout_per_node\Controller;
 
+use Drupal\Console\Bootstrap\Drupal;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\layout_per_node\LayoutPerNodeManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\node\Entity\Node;
@@ -16,6 +18,18 @@ use Drupal\node\Entity\Node;
  * buildContent() method that can be used by LayoutEditorBuilder.
  */
 class LayoutEditorController extends ControllerBase {
+  protected $layoutPerNodeManager;
+
+  public function __construct($layout_per_node_service) {
+    $this->layoutPerNodeManager = $layout_per_node_service;
+  }
+
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('layout_per_node.layout_per_node_manager')
+    );
+  }
+
 
   /**
    * Reroutes requests for building content to their respective build functions.
@@ -170,8 +184,7 @@ class LayoutEditorController extends ControllerBase {
     $output = [];
     $nid = $request->request->get('nid');
     $layout_data = $request->request->get('layout');
-    $lpnManager = new LayoutPerNodeManager();
-    $lpnManager->updateContent($nid, $layout_data);
+    LayoutPerNodeManager::updateContent($nid, $layout_data);
     // Return a response regardless of whether we saved or not.
     $response = new Response();
     $response->setContent(json_encode(array('content' => $nid)));
