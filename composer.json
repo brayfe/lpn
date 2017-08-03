@@ -1,7 +1,7 @@
 {
     "name": "utexas/layout_per_node",
     "description": "A PHP library for generating filler text from Project Gutenberg books",
-    "type": "drupal-module",
+    "type": "utexas-module",
     "license": "MIT",
     "authors": [
         {
