@@ -1,6 +1,6 @@
 {
     "name": "utexas/layout_per_node",
-    "description": "A PHP library for generating filler text from Project Gutenberg books",
+    "description": "A drag-and-drop node layout editor.",
     "type": "utexas-module",
     "license": "MIT",
     "authors": [
@@ -12,6 +12,6 @@
         }
     ],
     "require": {
-        "composer/installers": "~1.0"
+        "composer/installers": "^1.0.20"
     }
 }
