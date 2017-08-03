@@ -1,7 +1,7 @@
 {
     "name": "utexas/layout_per_node",
     "description": "A drag-and-drop node layout editor.",
-    "type": "drupal-module-custom",
+    "type": "utexas-module",
     "license": "MIT",
     "authors": [
         {
