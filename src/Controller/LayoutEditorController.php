@@ -18,7 +18,7 @@ use Drupal\node\Entity\Node;
  * buildContent() method that can be used by LayoutEditorBuilder.
  */
 class LayoutEditorController extends ControllerBase {
-  protected $layoutPerNodeManager;
+  private $layoutPerNodeManager;
 
   public function __construct($layout_per_node_service) {
     $this->layoutPerNodeManager = $layout_per_node_service;
@@ -179,12 +179,12 @@ class LayoutEditorController extends ControllerBase {
    * @param Request $request
    *    This should alway include the nid, entity type, and unique id.
    */
-  public static function set(Request $request) {
+  public function set(Request $request) {
     $layout = array();
     $output = [];
     $nid = $request->request->get('nid');
     $layout_data = $request->request->get('layout');
-    LayoutPerNodeManager::updateContent($nid, $layout_data);
+    $this->layoutPerNodeManager->updateContent($nid, $layout_data);
     // Return a response regardless of whether we saved or not.
     $response = new Response();
     $response->setContent(json_encode(array('content' => $nid)));

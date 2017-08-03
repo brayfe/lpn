@@ -2,6 +2,8 @@
 
 namespace Drupal\layout_per_node\Services;
 
+use Drupal\node\Entity\Node;
+
 class LayoutPerNodeManagerService {
   /**
    * @param string $nid
@@ -19,7 +21,7 @@ class LayoutPerNodeManagerService {
    * ];
    * @return bool
    */
-  public static function updateContent($nid, $layout_data) {
+  public function updateContent($nid, $layout_data) {
     $node = Node::load($nid);
     if ($node && !empty($layout_data)) {
       // Prepare data sent via AJAX POST request for storage on the node.
