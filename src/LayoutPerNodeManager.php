@@ -25,7 +25,7 @@ class LayoutPerNodeManager {
    * ];
    * @return bool
    */
-  public function updateContent($nid, $layout_data) {
+  public static function updateContent($nid, $layout_data) {
     $node = Node::load($nid);
     if ($node && !empty($layout_data)) {
       // Prepare data sent via AJAX POST request for storage on the node.
