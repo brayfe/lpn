@@ -32,12 +32,13 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
   ];
 
   if ($nid = LayoutEditorController::eligibleNode()) {
+    $node_url = Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE]);
     $query = \Drupal::request()->query->all();
     $data['tabs'][0]['node.layout_editor'] = [
       '#theme' => 'menu_local_task',
       '#link' => [
         'title' => t('Layout Editor'),
-        'url' => Url::fromRoute('<current>', [], ['query' => ['layout-editor' => '1']]),
+        'url' => Url::fromRoute('entity.node.canonical', ['node' => $nid], ['query' => ['layout-editor' => '1']]),
       ],
       '#cache' => $cache,
     ];
@@ -45,7 +46,7 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
     if (isset($query['layout-editor'])) {
       $data['tabs'][0]['node.layout_editor']['#link'] = [
         'title' => t('Exit Layout Editor'),
-        'url' => Url::fromRoute('<current>'),
+        'url' => $node_url,
       ];
       $data['tabs'][0]['node.switch_layouts'] = [
         '#theme' => 'menu_local_task',
@@ -66,7 +67,7 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
         '#theme' => 'menu_local_task',
         '#link' => [
           'title' => t('Save Layout'),
-          'url' => Url::fromRoute('<current>'),
+          'url' => $node_url,
           'localized_options' => [
             'attributes' => [
               'id' => 'layout-editor-save',
