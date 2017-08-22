@@ -2,8 +2,11 @@
 
 namespace Drupal\layout_per_node\Controller;
 
+use Drupal\Console\Bootstrap\Drupal;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\layout_per_node\LayoutPerNodeManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\node\Entity\Node;
@@ -15,6 +18,18 @@ use Drupal\node\Entity\Node;
  * buildContent() method that can be used by LayoutEditorBuilder.
  */
 class LayoutEditorController extends ControllerBase {
+  private $layoutPerNodeManager;
+
+  public function __construct($layout_per_node_service) {
+    $this->layoutPerNodeManager = $layout_per_node_service;
+  }
+
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('layout_per_node.layout_per_node_manager')
+    );
+  }
+
 
   /**
    * Reroutes requests for building content to their respective build functions.
@@ -164,36 +179,12 @@ class LayoutEditorController extends ControllerBase {
    * @param Request $request
    *    This should alway include the nid, entity type, and unique id.
    */
-  public static function set(Request $request) {
+  public function set(Request $request) {
     $layout = array();
     $output = [];
     $nid = $request->request->get('nid');
     $layout_data = $request->request->get('layout');
-    $node = Node::load($nid);
-    if ($node && !empty($layout_data)) {
-      // Prepare data sent via AJAX POST request for storage on the node.
-      // The two string_replace functions convert CSS hypens to machine_names.
-      foreach ($layout_data as $layout_raw => $values) {
-        $layout_id = 'layout_' . str_replace('-', '_', $layout_raw);
-        foreach ($values as $region => $contents) {
-          $region = str_replace('-', '_', $region);
-          foreach ($contents as $id => $type) {
-            $output[$layout_id][$region][$id] = $type;
-          }
-        }
-      }
-      $existing = $node->get('layout')->getValue();
-      if (isset($existing[0][$layout_id])) {
-        unset($existing[0][$layout_id]);
-      }
-      $merged = array_merge($output, $existing[0]);
-      $node->layout = $merged;
-      $node->setNewRevision();
-      $node->setRevisionCreationTime(time());
-      $node->setRevisionLogMessage('Layout updated');
-      $node->setRevisionTranslationAffected(TRUE);
-      $node->save();
-    }
+    $this->layoutPerNodeManager->updateContent($nid, $layout_data);
     // Return a response regardless of whether we saved or not.
     $response = new Response();
     $response->setContent(json_encode(array('content' => $nid)));
