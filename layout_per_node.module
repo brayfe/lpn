@@ -112,7 +112,7 @@ function layout_per_node_form_node_type_edit_form_alter(&$form, FormStateInterfa
   $default_layouts = !empty($allowed) ? array_values($allowed) : [];
   $form['layout_editor'] = array(
     '#type' => 'details',
-    '#title' => 'Layout Editor',
+    '#title' => 'Layout Per Node',
     '#group' => 'additional_settings',
   );
   $form['layout_editor']['layout_per_node_enabled'] = array(
