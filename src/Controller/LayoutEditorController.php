@@ -2,7 +2,6 @@
 
 namespace Drupal\layout_per_node\Controller;
 
-use Drupal\Console\Bootstrap\Drupal;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\layout_per_node\LayoutPerNodeManager;
@@ -18,18 +17,32 @@ use Drupal\node\Entity\Node;
  * buildContent() method that can be used by LayoutEditorBuilder.
  */
 class LayoutEditorController extends ControllerBase {
+
+  /**
+   * The instantiated LayoutPerNodeManager class.
+   *
+   * @var obj
+   */
   private $layoutPerNodeManager;
 
+  /**
+   * The class constructor.
+   */
   public function __construct($layout_per_node_service) {
     $this->layoutPerNodeManager = $layout_per_node_service;
   }
 
+  /**
+   * The create method.
+   *
+   * @param ContainerInterface $container
+   *   The Drupal container interface.
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('layout_per_node.layout_per_node_manager')
     );
   }
-
 
   /**
    * Reroutes requests for building content to their respective build functions.
