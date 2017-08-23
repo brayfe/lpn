@@ -2,16 +2,76 @@
 
 namespace Drupal\layout_per_node;
 
-use Drupal\Core\Link;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Link;
+use Drupal\Core\Path\CurrentPathStack;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Layout\LayoutPluginManagerInterface;
 use Drupal\field_layout\Display\EntityDisplayWithLayoutInterface;
 use Drupal\field_layout\FieldLayoutBuilder;
-use Drupal\layout_per_node\Controller\LayoutEditorController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Builds a field layout.
  */
 class LayoutEditorBuilder extends FieldLayoutBuilder {
+
+  /**
+   * The instantiated LayoutPerNodeManager class.
+   *
+   * @var obj
+   */
+  protected $layoutPerNodeManager;
+
+  /**
+   * Drupal\Core\Path\CurrentPathStack definition.
+   *
+   * @var \Drupal\Core\Path\CurrentPathStack
+   */
+  protected $pathCurrent;
+
+  /**
+   * Symfony\Component\HttpFoundation\RequestStack definition.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
+   * Constructs a new FieldLayoutBuilder.
+   *
+   * @param \Drupal\Core\Layout\LayoutPluginManagerInterface $layout_plugin_manager
+   *   The layout plugin manager.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
+   * @param $layout_per_node_service
+   *   This module's service.
+   * @param \Drupal\Core\Path\CurrentPathStack $path_current
+   *   The current path object.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The HTTP request.
+   */
+  public function __construct(LayoutPluginManagerInterface $layout_plugin_manager, EntityFieldManagerInterface $entity_field_manager, $layout_per_node_service, CurrentPathStack $path_current, RequestStack $request_stack) {
+    $this->layoutPluginManager = $layout_plugin_manager;
+    $this->entityFieldManager = $entity_field_manager;
+    $this->layoutPerNodeManager = $layout_per_node_service;
+    $this->pathCurrent = $path_current;
+    $this->requestStack = $request_stack;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('plugin.manager.core.layout'),
+      $container->get('entity_field.manager'),
+      $container->get('layout_per_node.manager'),
+      $container->get('path.current'),
+      $container->get('request_stack')
+    );
+  }
 
   /**
    * Applies the layout to an entity build.
@@ -38,8 +98,8 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
     ];
 
     // Retrieve overrides passed in via query parameter or node data.
-    $query = \Drupal::request()->query->all();
-    $node = \Drupal::routeMatch()->getParameter('node');
+    $query = $this->requestStack->getCurrentRequest()->query->all();
+    $node = $this->layoutPerNodeManager->getCurrentNode();
 
     // If we are at /node/[nid]/revisions/[vid]/view, make sure to load all of
     // that revision's elements.
@@ -95,7 +155,7 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
               unset($build[$id]);
             }
             else {
-              $regions[$region][$id] = LayoutEditorController::buildContent($type, $id, $node->id(), $layout_editor_mode);
+              $regions[$region][$id] = $this->layoutPerNodeManager->buildContent($type, $id, $node->id(), $layout_editor_mode);
             }
           }
         }
@@ -171,7 +231,7 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
    */
   protected function revisionView() {
     $revision = FALSE;
-    $request_path = \Drupal::service('path.current')->getPath();
+    $request_path = $this->pathCurrent->getPath();
     $parts = explode('/', $request_path);
     if (isset($parts[5]) && $parts[5] == 'view' && isset($parts[3]) && $parts[3] == 'revisions') {
       $revision = $parts[4];

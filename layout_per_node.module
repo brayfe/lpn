@@ -14,7 +14,6 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
 use Drupal\field_layout\Display\EntityDisplayWithLayoutInterface;
 use Drupal\layout_per_node\LayoutEditorBuilder;
-use Drupal\layout_per_node\Controller\LayoutEditorController;
 
 /**
  * Implements hook_menu_local_tasks_alter().
@@ -31,7 +30,7 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
     ],
   ];
 
-  if ($nid = LayoutEditorController::eligibleNode()) {
+  if ($nid = \Drupal::service('layout_per_node.manager')->eligibleNode()) {
     $node_url = Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE]);
     $query = \Drupal::request()->query->all();
     $data['tabs'][0]['node.layout_editor'] = [
