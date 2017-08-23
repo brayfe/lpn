@@ -1,9 +1,0 @@
-
-# Layout Per Node menu items definition
-entity.layout_per_node.collection:
-  title: 'Layout Per Node'
-  route_name: entity.layout_per_node.collection
-  description: 'List Layout Per Node (bundles)'
-  parent: system.admin_structure
-  weight: 99
-

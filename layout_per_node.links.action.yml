@@ -1,6 +1,0 @@
-entity.layout_per_node.add_form:
-  route_name: 'entity.layout_per_node.add_form'
-  title: 'Add Layout Per Node'
-  appears_on:
-    - entity.layout_per_node.collection
-
