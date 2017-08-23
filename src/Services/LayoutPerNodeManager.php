@@ -9,6 +9,7 @@ use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountProxy;
 use Drupal\node\Entity\Node;
+use Drupal\Core\Logger\LoggerChannelFactory;
 
 /**
  * Class LayoutPerNodeManager.
@@ -51,9 +52,16 @@ class LayoutPerNodeManager {
   protected $entityTypeManager;
 
   /**
+   * Drupal\Core\Logger\LoggerChannelFactory definition.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactory
+   */
+  protected $loggerFactory;
+
+  /**
    * Constructor.
    */
-  public function __construct(AccountProxy $current_user, CurrentRouteMatch $current_route_match, ConfigFactory $config_factory, EntityManager $entity_manager, EntityTypeManager $entity_type_manager, BlockManager $plugin_manager_block) {
+  public function __construct(AccountProxy $current_user, CurrentRouteMatch $current_route_match, ConfigFactory $config_factory, EntityManager $entity_manager, EntityTypeManager $entity_type_manager, BlockManager $plugin_manager_block, LoggerChannelFactory $loggerFactory) {
     $this->currentUser = $current_user;
     $this->currentRouteMatch = $current_route_match;
     $this->configFactory = $config_factory;
@@ -61,6 +69,7 @@ class LayoutPerNodeManager {
     $this->entityTypeManager = $entity_type_manager;
     $this->pluginManagerBlock = $plugin_manager_block;
     $this->pathCurrent = $path_current;
+    $this->loggerFactory = $loggerFactory;
   }
 
   /**
@@ -152,7 +161,7 @@ class LayoutPerNodeManager {
       return TRUE;
     }
     else {
-      \Drupal::logger('layout_per_node')->warning(t("Warning: Attempted to update @nid layout_per_node data and was unable to find existing record", ['@nid' => $nid]));
+      $this->loggerFactory->logger('layout_per_node')->warning(t("Warning: Attempted to update @nid layout_per_node data and was unable to find existing record", ['@nid' => $nid]));
       return FALSE;
     }
   }

@@ -8,3 +8,5 @@ services:
       - '@entity.manager'
       - '@entity_type.manager'
       - '@plugin.manager.block'
+      - '@logger.factory'
+
