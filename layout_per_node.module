@@ -98,6 +98,54 @@ function layout_per_node_entity_base_field_info(EntityTypeInterface $entity_type
 }
 
 /**
+ * Implements hook_ENTITY_TYPE_update().
+ *
+ * Whenever node data is re-saved, a corresponding layout with VID must be
+ * provided.
+ */
+function layout_per_node_node_update(EntityInterface $entity) {
+  $config = \Drupal::config('layout_per_node.enabled');
+  $enabled = $config->get($entity->getType());
+  if ($enabled) {
+    $new_revision = TRUE;
+    if ($entity->getRevisionLogMessage() != 'Layout updated') {
+      $layoutPerNodeManager = \Drupal::service('layout_per_node.manager');
+      // This will create a new layout revision with the existing layout,
+      // since no 2nd parameter was passed to updateContent. This takes care of
+      // keeping the layout revisions up-to-date with regular node saves.
+      $layoutPerNodeManager->updateLayout($entity->id());
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * When a twitter widget is deleted, we want to clean up any blocks that
+ * reference that entity ID, as they will no longer work.
+ */
+function twitter_profile_widget_entity_delete(EntityInterface $entity) {
+  // Only act on twitter_widget entities.
+  if ($entity->getEntityTypeId() == 'twitter_widget' && $entity->bundle() == 'twitter_widget') {
+    $config = \Drupal::config('twitter_profile_widget.settings');
+    if ($config->get('integrate_blocks')) {
+      $entity_type = 'twitter_widget';
+      $ids = \Drupal::entityQuery('block_content')
+        ->condition('type', $entity_type)
+        ->condition('field_twitter_widget.target_id', $entity->get('id')->value)
+        ->execute();
+      if (!empty($ids)) {
+        $storage_handler = \Drupal::entityTypeManager()->getStorage('block_content');
+        $entities = $storage_handler->loadMultiple($ids);
+        $storage_handler->delete($entities);
+        \Drupal::logger('twitter_profile_widgets')->notice('Any Twitter blocks associated with "%name" have been deleted.',
+        ['%name' => $entity->get('name')->value]);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_form_BASE_FORM_ID_alter().
  *
  * Add an "Enable layout per node" checkbox to content type Edit form.

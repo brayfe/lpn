@@ -81,7 +81,7 @@ class LayoutEditorController extends ControllerBase {
     $output = [];
     $nid = $request->request->get('nid');
     $layout_data = $request->request->get('layout');
-    $this->layoutPerNodeManager->updateContent($nid, $layout_data);
+    $this->layoutPerNodeManager->updateLayout($nid, $layout_data);
     // Return a response regardless of whether we saved or not.
     $response = new Response();
     $response->setContent(json_encode(array('content' => $nid)));

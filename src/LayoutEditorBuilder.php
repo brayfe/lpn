@@ -107,11 +107,15 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
       $node = entity_revision_load('node', $revision);
     }
 
-    // Check to see if there is per-node data. If so, use the zeroth element.
-    if ($node && $layout_raw = $node->get('layout')->getValue()) {
-      if (!empty(key($layout_raw[0]))) {
-        $layout = $layout_raw[0];
-        $layout_id = key($layout);
+    // Check to see if there is layout data for the current request.
+    // If so, use the zeroth (i.e., most recently saved) element.
+    if ($layout_entity = $this->layoutPerNodeManager->getCurrentLayoutEntity()) {
+      if ($layout_entity) {
+        $layout_raw = $layout_entity->get('layout')->getValue();
+        if (!empty(key($layout_raw[0]))) {
+          $layout = $layout_raw[0];
+          $layout_id = key($layout);
+        }
       }
     }
 

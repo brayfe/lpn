@@ -19,6 +19,13 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 class LayoutPerNodeManager {
 
   /**
+   * Drupal\Core\Entity.
+   *
+   * @var \Drupal\Core\Entity
+   */
+  protected $currentNode;
+
+  /**
    * Drupal\Core\Session\AccountProxy definition.
    *
    * @var \Drupal\Core\Session\AccountProxy
@@ -68,7 +75,6 @@ class LayoutPerNodeManager {
     $this->entityManager = $entity_manager;
     $this->entityTypeManager = $entity_type_manager;
     $this->pluginManagerBlock = $plugin_manager_block;
-    $this->pathCurrent = $path_current;
     $this->loggerFactory = $loggerFactory;
   }
 
@@ -115,7 +121,7 @@ class LayoutPerNodeManager {
    *
    * @param string $nid
    *   The node ID.
-   * @param array $layout_data
+   * @param array $updated_layout
    *   The layout array:
    *   Example: Add a block to the 'first' & 'second' region of 'twocol' layout:
    *   $layout_data = [
@@ -132,13 +138,21 @@ class LayoutPerNodeManager {
    * @return bool
    *   Whether the layout was successfully saved or not.
    */
-  public function updateContent($nid, array $layout_data) {
-    // @todo: refactor to use a separate configuration storage backend.
-    $node = Node::load($nid);
-    if ($node && !empty($layout_data)) {
-      // Prepare data sent via AJAX POST request for storage on the node.
-      // The two string_replace functions convert CSS hypens to machine_names.
-      foreach ($layout_data as $layout_raw => $values) {
+  public function updateLayout($nid, array $updated_layout = []) {
+    $node = $this->getCurrentNode($nid);
+    if ($existing_layout_entity = $this->getCurrentLayoutEntity($nid)) {
+      $existing_layout = $existing_layout_entity->get('layout')->getValue();
+      // Assume that we are doing a simple node save from the edit form, and
+      // that no updated layout data has been provided as the 3rd argument.
+      $layout = $existing_layout;
+    }
+
+    // New layout data has been passed in (via LayoutEditorBuilder->set() or
+    // via a direct call, e.g., migration).
+    if (!empty($updated_layout)) {
+      $output = [];
+      foreach ($updated_layout as $layout_raw => $values) {
+        // This defines which layout ID the regions & fields correspond to.
         $layout_id = 'layout_' . str_replace('-', '_', $layout_raw);
         foreach ($values as $region => $contents) {
           $region = str_replace('-', '_', $region);
@@ -147,21 +161,33 @@ class LayoutPerNodeManager {
           }
         }
       }
-      $existing = $node->get('layout')->getValue();
-      if (isset($existing[0][$layout_id])) {
-        unset($existing[0][$layout_id]);
+      if (isset($existing_layout[0][$layout_id])) {
+        unset($existing_layout[0][$layout_id]);
+        $layout = array_merge($output, $existing_layout[0]);
       }
-      $merged = array_merge($output, $existing[0]);
-      $node->layout = $merged;
+      else {
+        $layout = $output;
+      }
       $node->setNewRevision();
       $node->setRevisionCreationTime(time());
       $node->setRevisionLogMessage('Layout updated');
       $node->setRevisionTranslationAffected(TRUE);
       $node->save();
+    }
+
+    if ($node) {
+      // Save the layout to the layout_per_node_entity.
+      $layout_entity = entity_create('layout_per_node_layout', array(
+        'nid' => $nid,
+        'vid' => $node->vid->value,
+        'entity_type' => 'node',
+        'layout' => $layout,
+      ));
+      $layout_entity->save();
       return TRUE;
     }
     else {
-      $this->loggerFactory->logger('layout_per_node')->warning(t("Warning: Attempted to update @nid layout_per_node data and was unable to find existing record", ['@nid' => $nid]));
+      \Drupal::logger('layout_per_node')->warning(t("Warning: Attempted to update @nid layout_per_node data and was unable to find existing record", [@nid => $nid]));
       return FALSE;
     }
   }
@@ -265,13 +291,56 @@ class LayoutPerNodeManager {
    * @return obj
    *   The node object, if it exists.
    */
-  public function getCurrentNode() {
-    $node = $this->currentRouteMatch->getParameter('node');
-    // The following if statement is an edge case for the "revisions" view.
-    if (is_numeric($node)) {
+  public function getCurrentNode($nid = 0) {
+    if ($nid == 0) {
+      // If no node ID is loaded, try to retrieve it from the request.
+      // This is used by LayoutEditorBuilder.
+      $node = $this->currentRouteMatch->getParameter('node');
+    }
+    else {
+      // A provided URL is used when saving new layout data.
       $node = Node::load($nid);
     }
+
+    // The following if statement is an edge case for the "revisions" view.
+    if (is_numeric($node)) {
+      $node = Node::load($node->id());
+    }
+    $this->currentNode = $node;
     return $node;
+  }
+
+  /**
+   * Helper function to retrieve the layout entity for the latest node revision.
+   *
+   * @return obj
+   *   The node object, if it exists.
+   */
+  public function getCurrentLayoutEntity($nid = 0) {
+    if ($node = $this->getCurrentNode($nid)) {
+      $query = \Drupal::entityQuery('layout_per_node_layout')
+        ->condition('nid', $node->id())
+        ->condition('vid', $node->vid->value);
+      $ids = $query->execute();
+      if (!empty($ids)) {
+        if ($entity = entity_load('layout_per_node_layout', key($ids))) {
+          return $entity;
+        }
+      }
+      else {
+        // New node data was just saved. Get the previous revision's layout.
+        $query = \Drupal::entityQuery('layout_per_node_layout')
+          ->condition('nid', $node->id())
+          ->condition('vid', $node->vid->value - 1);
+        $ids = $query->execute();
+        if (!empty($ids)) {
+          if ($entity = entity_load('layout_per_node_layout', key($ids))) {
+            return $entity;
+          }
+        }
+      }
+    }
+    return FALSE;
   }
 
 }
