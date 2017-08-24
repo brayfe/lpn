@@ -7,8 +7,6 @@
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
@@ -80,24 +78,6 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
 }
 
 /**
- * Implements hook_entity_base_field_info().
- *
- * Adds a "layout" column to the base node_field_data table.
- */
-function layout_per_node_entity_base_field_info(EntityTypeInterface $entity_type) {
-  if ($entity_type->id() === 'node') {
-    $field = array();
-    $field['layout'] = BaseFieldDefinition::create('map')
-      ->setLabel(t('@label', ['@label' => 'layout']))
-      ->setDescription(t('@description', ['@description' => 'Layout Editor values']))
-      ->setRevisionable(TRUE)
-      ->setTranslatable(TRUE)
-      ->setDefaultValue(0);
-    return $field;
-  }
-}
-
-/**
  * Implements hook_ENTITY_TYPE_update().
  *
  * Whenever node data is re-saved, a corresponding layout with VID must be
@@ -121,27 +101,14 @@ function layout_per_node_node_update(EntityInterface $entity) {
 /**
  * Implements hook_entity_delete().
  *
- * When a twitter widget is deleted, we want to clean up any blocks that
- * reference that entity ID, as they will no longer work.
+ * When a node with layout data is deleted, delete the layout data.
  */
-function twitter_profile_widget_entity_delete(EntityInterface $entity) {
-  // Only act on twitter_widget entities.
-  if ($entity->getEntityTypeId() == 'twitter_widget' && $entity->bundle() == 'twitter_widget') {
-    $config = \Drupal::config('twitter_profile_widget.settings');
-    if ($config->get('integrate_blocks')) {
-      $entity_type = 'twitter_widget';
-      $ids = \Drupal::entityQuery('block_content')
-        ->condition('type', $entity_type)
-        ->condition('field_twitter_widget.target_id', $entity->get('id')->value)
-        ->execute();
-      if (!empty($ids)) {
-        $storage_handler = \Drupal::entityTypeManager()->getStorage('block_content');
-        $entities = $storage_handler->loadMultiple($ids);
-        $storage_handler->delete($entities);
-        \Drupal::logger('twitter_profile_widgets')->notice('Any Twitter blocks associated with "%name" have been deleted.',
-        ['%name' => $entity->get('name')->value]);
-      }
-    }
+function layout_per_node_node_delete(EntityInterface $entity) {
+  $query = \Drupal::entityQuery('layout_per_node_layout')
+    ->condition('nid', $entity->id());
+  $ids = $query->execute();
+  if (!empty($ids)) {
+    entity_delete_multiple('layout_per_node_layout', $ids);
   }
 }
 

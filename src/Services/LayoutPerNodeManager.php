@@ -19,13 +19,6 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 class LayoutPerNodeManager {
 
   /**
-   * Drupal\Core\Entity.
-   *
-   * @var \Drupal\Core\Entity
-   */
-  protected $currentNode;
-
-  /**
    * Drupal\Core\Session\AccountProxy definition.
    *
    * @var \Drupal\Core\Session\AccountProxy
@@ -140,7 +133,7 @@ class LayoutPerNodeManager {
    */
   public function updateLayout($nid, array $updated_layout = []) {
     $node = $this->getCurrentNode($nid);
-    if ($existing_layout_entity = $this->getCurrentLayoutEntity($nid)) {
+    if ($existing_layout_entity = $this->getLayoutEntity($node->id(), $node->vid->value)) {
       $existing_layout = $existing_layout_entity->get('layout')->getValue();
       // Assume that we are doing a simple node save from the edit form, and
       // that no updated layout data has been provided as the 3rd argument.
@@ -304,9 +297,8 @@ class LayoutPerNodeManager {
 
     // The following if statement is an edge case for the "revisions" view.
     if (is_numeric($node)) {
-      $node = Node::load($node->id());
+      $node = Node::load($node);
     }
-    $this->currentNode = $node;
     return $node;
   }
 
@@ -316,27 +308,31 @@ class LayoutPerNodeManager {
    * @return obj
    *   The node object, if it exists.
    */
-  public function getCurrentLayoutEntity($nid = 0) {
-    if ($node = $this->getCurrentNode($nid)) {
+  public function getLayoutEntity($nid = 0, $vid = 0) {
+    if (!$nid && !$vid) {
+      $node = $this->getCurrentNode();
+      $nid = $node->id();
+      $vid = $node->vid->value;
+    }
+
+    $query = \Drupal::entityQuery('layout_per_node_layout')
+      ->condition('nid', $nid)
+      ->condition('vid', $vid);
+    $ids = $query->execute();
+    if (!empty($ids)) {
+      if ($entity = entity_load('layout_per_node_layout', key($ids))) {
+        return $entity;
+      }
+    }
+    else {
+      // New node data was just saved. Get the previous revision's layout.
       $query = \Drupal::entityQuery('layout_per_node_layout')
-        ->condition('nid', $node->id())
-        ->condition('vid', $node->vid->value);
+        ->condition('nid', $nid)
+        ->condition('vid', $vid - 1);
       $ids = $query->execute();
       if (!empty($ids)) {
         if ($entity = entity_load('layout_per_node_layout', key($ids))) {
           return $entity;
-        }
-      }
-      else {
-        // New node data was just saved. Get the previous revision's layout.
-        $query = \Drupal::entityQuery('layout_per_node_layout')
-          ->condition('nid', $node->id())
-          ->condition('vid', $node->vid->value - 1);
-        $ids = $query->execute();
-        if (!empty($ids)) {
-          if ($entity = entity_load('layout_per_node_layout', key($ids))) {
-            return $entity;
-          }
         }
       }
     }
