@@ -7,8 +7,6 @@
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
@@ -80,20 +78,37 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
 }
 
 /**
- * Implements hook_entity_base_field_info().
+ * Implements hook_ENTITY_TYPE_update().
  *
- * Adds a "layout" column to the base node_field_data table.
+ * Whenever node data is re-saved, a corresponding layout with VID must be
+ * provided.
  */
-function layout_per_node_entity_base_field_info(EntityTypeInterface $entity_type) {
-  if ($entity_type->id() === 'node') {
-    $field = array();
-    $field['layout'] = BaseFieldDefinition::create('map')
-      ->setLabel(t('@label', ['@label' => 'layout']))
-      ->setDescription(t('@description', ['@description' => 'Layout Editor values']))
-      ->setRevisionable(TRUE)
-      ->setTranslatable(TRUE)
-      ->setDefaultValue(0);
-    return $field;
+function layout_per_node_node_update(EntityInterface $entity) {
+  $config = \Drupal::config('layout_per_node.enabled');
+  $enabled = $config->get($entity->getType());
+  if ($enabled) {
+    $new_revision = TRUE;
+    if ($entity->getRevisionLogMessage() != 'Layout updated') {
+      $layoutPerNodeManager = \Drupal::service('layout_per_node.manager');
+      // This will create a new layout revision with the existing layout,
+      // since no 2nd parameter was passed to updateContent. This takes care of
+      // keeping the layout revisions up-to-date with regular node saves.
+      $layoutPerNodeManager->updateLayout($entity->id());
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * When a node with layout data is deleted, delete the layout data.
+ */
+function layout_per_node_node_delete(EntityInterface $entity) {
+  $query = \Drupal::entityQuery('layout_per_node_layout')
+    ->condition('nid', $entity->id());
+  $ids = $query->execute();
+  if (!empty($ids)) {
+    entity_delete_multiple('layout_per_node_layout', $ids);
   }
 }
 
