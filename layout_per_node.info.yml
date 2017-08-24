@@ -5,3 +5,5 @@ core: 8.x
 package: Layout
 dependencies:
   - field_layout
+
+version: '8.x-1.0-alpha3'
