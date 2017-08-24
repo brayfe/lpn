@@ -1,4 +1,12 @@
 services:
-  layout_per_node.layout_per_node_manager:
-    class: Drupal\layout_per_node\Services\LayoutPerNodeManagerService
-    arguments: []
+  layout_per_node.manager:
+    class: Drupal\layout_per_node\Services\LayoutPerNodeManager
+    arguments:
+      - '@current_user'
+      - '@current_route_match'
+      - '@config.factory'
+      - '@entity.manager'
+      - '@entity_type.manager'
+      - '@plugin.manager.block'
+      - '@logger.factory'
+
