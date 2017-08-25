@@ -37,13 +37,15 @@ class SwitchLayoutsForm extends FormBase {
       // Check to see if there is per-node data. If so, use the zeroth element.
       $layout = NULL;
       $layoutPerNodeManager = \Drupal::service('layout_per_node.manager');
-      $layout_entity = $layoutPerNodeManager->getLayoutEntity($node->id(), $node->vid->value);
-      $layout_raw = $layout_entity->get('layout')->getValue();
-      if ($node && $layout_raw) {
-        if (!empty(key($layout_raw[0]))) {
-          $layout = $layout_raw[0];
+      if ($layout_entity = $layoutPerNodeManager->getLayoutEntity($node->id(), $node->vid->value)) {
+        $layout_raw = $layout_entity->get('layout')->getValue();
+        if ($node && $layout_raw) {
+          if (!empty(key($layout_raw[0]))) {
+            $layout = $layout_raw[0];
+          }
         }
       }
+
       $form['layout'] = [
         '#title' => $this->t('Layout'),
         '#type' => 'select',
