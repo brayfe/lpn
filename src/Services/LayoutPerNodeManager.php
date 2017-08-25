@@ -221,7 +221,7 @@ class LayoutPerNodeManager {
   protected function renderablePluginBlock($id) {
     // @todo: add the ability to pass config directly?
     $config = [];
-    $plugin_block = $this->block_manager->createInstance($id, $config);
+    $plugin_block = $this->pluginManagerBlock->createInstance($id, $config);
     // Some blocks might implement access check.
     $access_result = $plugin_block->access(\Drupal::currentUser());
     // Return empty render array if user doesn't have access.
