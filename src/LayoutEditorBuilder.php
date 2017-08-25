@@ -132,6 +132,10 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
       $layout_from_node = $layout[$layout_id];
     }
 
+    if (empty($layout) && !isset($query['layout'])) {
+      return $build;
+    }
+
     // At this point, the layout id is set, either from the switcher, the per
     // node data, or the node type default. The key dynamic behavior comes
     // from setting the $display layoutID, below.
