@@ -10,3 +10,8 @@ services:
       - '@plugin.manager.block'
       - '@logger.factory'
 
+  layout_per_node.access:
+    class: Drupal\layout_per_node\Services\LayoutAccess
+    arguments: ['@current_user']
+    tags:
+      - { name: access_check, applies_to: _layout_access }

@@ -7,6 +7,7 @@ use Drupal\layout_per_node\LayoutPerNodeManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class LayoutEditorController.
@@ -54,15 +55,15 @@ class LayoutEditorController extends ControllerBase {
    *    A render array.
    */
   public function get(Request $request) {
-    $nid = $request->request->get('nid');
-    $type = $request->request->get('type');
     $id = $request->request->get('id');
-    if (!isset($nid) || !isset($type) || !isset($id)) {
+    $type = $request->request->get('type');
+    $container = $request->request->get('container');
+    if (!isset($id) || !isset($type) || !isset($container)) {
       throw new NotFoundHttpException();
     }
     // Set 4th parameter to true so we wrap the output in a container that has
     // data attributes that the layout editor JS can find.
-    $content = $this->layoutPerNodeManager->buildContent($type, $id, $nid, TRUE);
+    $content = $this->layoutPerNodeManager->buildContent($type, $container, $id, TRUE);
     $rendered = render($content);
     $response = new Response();
     $response->setContent(json_encode(array('content' => $rendered)));
@@ -79,12 +80,15 @@ class LayoutEditorController extends ControllerBase {
   public function set(Request $request) {
     $layout = array();
     $output = [];
-    $nid = $request->request->get('nid');
+    $id = $request->request->get('id');
     $layout_data = $request->request->get('layout');
-    $this->layoutPerNodeManager->updateLayout($nid, $layout_data);
+    if (!isset($layout_data) || !isset($id)) {
+      throw new NotFoundHttpException();
+    }
+    $this->layoutPerNodeManager->updateLayout($id, $layout_data);
     // Return a response regardless of whether we saved or not.
     $response = new Response();
-    $response->setContent(json_encode(array('content' => $nid)));
+    $response->setContent(json_encode(array('content' => $id)));
     $response->headers->set('Content-Type', 'application/json');
     return $response;
   }

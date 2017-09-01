@@ -55,10 +55,10 @@
         var layout = retrieveCurrentLayout();
         var nid = drupalSettings.field_layout_editor.nid;
         $.ajax({
-          url: Drupal.url("admin/config/layout-per-node/set"),
+          url: Drupal.url("admin/layout-per-node/set"),
           type: 'POST',
           data: {
-            'nid': nid,
+            'id': nid,
             'layout': layout,
           },
           dataType: 'json',

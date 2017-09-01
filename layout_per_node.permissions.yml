@@ -1,4 +1,2 @@
-use layout per node:
-  title: 'Use drag-and-drop field layout editor'
-  description: 'Use drag-and-drop field layout editor'
-  restrict access: true
+permission_callbacks:
+  - \Drupal\layout_per_node\LayoutPermissions::nodeTypePermissions

@@ -14,29 +14,6 @@ use Drupal\node\Entity\Node;
 class AddContentForm extends FormBase {
 
   /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return 'layout_per_node_add_content';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getParameters() {
-    $return = array();
-    $request_path = \Drupal::service('path.current')->getPath();
-    $parts = explode('/', $request_path);
-    if (isset($parts[4])) {
-      $return['nid'] = $parts[4];
-    }
-    if (isset($parts[5])) {
-      $return['region'] = $parts[5];
-    }
-    return $return;
-  }
-
-  /**
    * Form: list fields, content blocks, & views blocks for placement on a page.
    *
    * Note: this returns all fields that have content. The JS method
@@ -45,7 +22,7 @@ class AddContentForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $parameters = $this->getParameters();
-    if (isset($parameters['nid'])) {
+    if (isset($parameters['id'])) {
       $form['tabs'] = array(
         '#prefix' => '<div class="one-third">',
         '#type' => 'vertical_tabs',
@@ -57,7 +34,7 @@ class AddContentForm extends FormBase {
         '#title' => t('Fields (page-specific)'),
         '#group' => 'tabs',
       );
-      $form['fields'] += $this->buildFields($parameters['nid']);
+      $form['fields'] += $this->buildFields($parameters['id']);
       $form['content_blocks'] = array(
         '#type' => 'details',
         '#title' => t('Blocks (site-wide)'),
@@ -184,6 +161,28 @@ class AddContentForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'layout_per_node_add_content';
+  }
+
+  /**
+   * Helper function to parse GET query parameters.
+   */
+  protected function getParameters() {
+    $return = array();
+    $query = \Drupal::request()->query->all();
+    if (isset($query['id'])) {
+      $return['id'] = $query['id'];
+    }
+    if (isset($query['region'])) {
+      $return['region'] = $query['region'];
+    }
+    return $return;
   }
 
 }

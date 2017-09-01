@@ -84,6 +84,10 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
    */
   public function buildView(array &$build, EntityDisplayWithLayoutInterface $display) {
 
+    if (!$this->layoutPerNodeManager->eligibleNode()) {
+      return $build;
+    }
+
     // Set default node type display layout ID.
     $override = TRUE;
     $default_layout_id = $display->getLayoutId();
@@ -132,7 +136,7 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
       $layout_from_node = $layout[$layout_id];
     }
 
-    if (empty($layout) && !isset($query['layout'])) {
+    if (empty($layout) && !isset($query['layout']) && !isset($query['layout-editor'])) {
       return $build;
     }
 
@@ -220,8 +224,12 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
           'link' => Link::createFromRoute(
             $title,
             'layout_per_node.add_content',
-            ['node' => $node->id(), 'region' => $region],
+            [],
             [
+              'query' => [
+                'id' => $node->id(),
+                'region' => $region,
+              ],
               'attributes' => [
                 'title' => $title,
                 'class' => ['use-ajax', 'button', 'button--small'],
