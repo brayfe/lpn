@@ -267,6 +267,7 @@ class LayoutPerNodeManager {
    *   The node id, or 0, if not eligible.
    */
   public function eligibleNode() {
+    $allowed = [];
     if ($node = $this->getCurrentNode()) {
       $config = $this->configFactory->get('layout_per_node.enabled');
       $is_enabled = $config->get($node->getType());
