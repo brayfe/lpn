@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\layout_per_node\Functional;
 
-use Drupal\Core\Url;
 use Drupal\Tests\BrowserTestBase;
 
 /**
@@ -13,8 +12,7 @@ use Drupal\Tests\BrowserTestBase;
 class BasicAccessTest extends BrowserTestBase {
 
   /**
-   * Use the 'standard' installation profile to verify this works with
-   * Drupal-provided article/page node types.
+   * Use the 'standard' installation for Drupal-provided node types.
    *
    * @var string
    */
@@ -31,6 +29,8 @@ class BasicAccessTest extends BrowserTestBase {
 
   /**
    * A node ID for use across multiple tests.
+   *
+   * @var string
    */
   protected $articleID;
 
@@ -92,10 +92,14 @@ class BasicAccessTest extends BrowserTestBase {
     $this->drupalGet('admin/layout-per-node/get');
     $this->assertSession()->statusCodeEquals(403);
 
+    //$edit_tab = $this->xpath("//a[@data-drupal-link-system-path]");
+    //$edit_tab = $this->xpath("//a[contains(@href,'/node')]/@href");
+    //$this->assertEqual(count($edit_tab), 1, 'Ensure that the user does have access to edit the node');
+
   }
 
   /**
-   * Tests Anonymous access to routes provided by the module
+   * Tests Anonymous access to routes provided by the module.
    */
   public function testAnonymousAccess() {
     // Behave as an anonymous user.
@@ -118,72 +122,7 @@ class BasicAccessTest extends BrowserTestBase {
     $this->drupalGet('node/' . $this->articleID);
     $this->assertSession()->statusCodeEquals(200);
 
-  }
 
-  /**
-   * Tests route detail page.
-   */
-  public function testRouteDetail() {
-/*    $expected_title = 'Route detail';
-    $xpath_warning_messages = '//div[contains(@class, "messages--warning")]';
-
-    // Ensures that devel route detail link in the menu works properly.
-    $url = $this->develUser->toUrl();
-    $path = '/' . $url->getInternalPath();
-
-    $this->drupalGet($url);
-    $this->clickLink('Current route info');
-    $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->pageTextContains($expected_title);
-    $expected_url = Url::fromRoute('devel.route_info.item', [], ['query' => ['path' => $path]]);
-    $this->assertSession()->addressEquals($expected_url);
-    $this->assertSession()->elementNotExists('xpath', $xpath_warning_messages);
-
-    // Ensures that devel route detail works properly even when dynamic cache
-    // is enabled.
-    $url = Url::fromRoute('devel.simple_page');
-    $path = '/' . $url->getInternalPath();
-
-    $this->drupalGet($url);
-    $this->clickLink('Current route info');
-    $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->pageTextContains($expected_title);
-    $expected_url = Url::fromRoute('devel.route_info.item', [], ['query' => ['path' => $path]]);
-    $this->assertSession()->addressEquals($expected_url);
-    $this->assertSession()->elementNotExists('xpath', $xpath_warning_messages);
-
-    // Ensures that if a non existent path is passed as input, a warning
-    // message is shown.
-    $this->drupalGet('devel/routes/item', ['query' => ['path' => '/undefined']]);
-    $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->pageTextContains($expected_title);
-    $this->assertSession()->elementExists('xpath', $xpath_warning_messages);
-
-    // Ensures that the route detail page works properly when a valid route
-    // name input is passed.
-    $this->drupalGet('devel/routes/item', ['query' => ['route_name' => 'devel.simple_page']]);
-    $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->pageTextContains($expected_title);
-    $this->assertSession()->elementNotExists('xpath', $xpath_warning_messages);
-
-    // Ensures that if a non existent route name is passed as input a warning
-    // message is shown.
-    $this->drupalGet('devel/routes/item', ['query' => ['route_name' => 'not.exists']]);
-    $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->pageTextContains($expected_title);
-    $this->assertSession()->elementExists('xpath', $xpath_warning_messages);
-
-    // Ensures that if no 'path' nor 'name' query string is passed as input,
-    // devel route detail page does not return errors.
-    $this->drupalGet('devel/routes/item');
-    $this->assertSession()->statusCodeEquals(200);
-    $this->assertSession()->pageTextContains($expected_title);
-
-    // Ensures that the page is accessible ony to the users with the adequate
-    // permissions.
-    $this->drupalLogout();
-    $this->drupalGet('devel/routes/item');
-    $this->assertSession()->statusCodeEquals(403);*/
   }
 
 }
