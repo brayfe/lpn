@@ -6,7 +6,7 @@ Layout Per Node ([layout_per_node](https://www.drupal.org/project/layout_per_nod
 
 > ...bring unity to a system of disjointed output components (blocks, page callbacks, menus, theme settings, and more) and **provide a standardized mechanism of output, new tools for placing content on a page**, and a potential for performance gains amongst other benefits.
 
-Moreover, this project's goal is to be content placement tool that is **simple and intuitive**.
+Moreover, this project's goal is to be a content placement tool that is **simple and intuitive**.
 
 If you're familiar with [Panels](https://www.drupal.org/project/panels), another way of saying that is: Layout Per Node is a take on "Panels Lite."
 
@@ -15,13 +15,13 @@ This walkthrough summarizes Layout Per Node's content building workflow and its 
 ### 1. Content Building
 Let's start with the actual use of Layout Per Node: how a content builder would use it, and how it integrates into Drupal's content editing conventions.
 
-We start with a standard Drupal article node, consisting of body field, image field, and tags field. Integrated with the `View`, `Edit` and `Delete` tabs is a new `Layout` tab. Clicking on this tab enables the field_layout region overlay, which defaults to the single content region.
+We start with a standard Drupal "article" node, consisting of `body` field, `image` field, `tags` field, and `comments` field. Integrated with the `View`, `Edit` and `Delete` tabs is a new `Layout` tab. Clicking on this tab enables the field_layout region overlay, which defaults to the single content region.
 
 The `Switch Layouts` tab now becomes visible; this provides an interface for switching between any of the allowed layouts for the given node type. These layouts are not provided by this module, but are part of the core Layout Discovery system, which allows modules to register their own layouts.
 
-Let's first switch to one of the Drupal-provided two column layouts.
+Let's first switch to one of the Drupal-provided two-column layouts.
 
-Next, we will place content in the newly visible layout regions using any of the `Add content` buttons at the base of each region. The `Add Content` overlay provides a listing of both our node-specific content, namely, the body, image, tags, and comments fields, as well as content which is not associated with a specific node: Drupal blocks -- which are subdivided into all custom block types and Views blocks.
+Next, we will place content in the newly visible layout regions using any of the `Add content` buttons at the base of each region. The `Add Content` overlay provides a listing of both our node-specific content, namely, the body, image, tags, and comments fields, as well as content which is not associated with a specific node, that is, Drupal blocks -- which are separated into custom block types and Views blocks.
 
 The `Add content` overlay provides rendered previews of each available element to better disambiguate content.
 
@@ -32,7 +32,7 @@ The ability to revision layouts not only enables reverting not just content *and
 ### 2. Setup & Configuration
 Now that we've seen the end product, let's see what it takes to integrate Layout Per Node in a site. After enabling the module, visit any node type's "Edit" interface. A new `Layout Per Node` vertical tab appears among the others. After ticking the on/off checkbox, a list of all layouts registered via Drupal's Layout Discovery system appear.
 
-Once, enabled, a new permission definition is added to the permissions system for using the node type's layout per node. In this sense, Layout Per Node is treated as simply another facet of the content building permissions stack, alongside creating, editing, and deleting node content. Via these permissions, a given site can allow some users to create content and others to manage its layout; another site could grant separate roles to create and layout content for each distinct node type.
+Once enabled, a new permission definition is added to the permissions system for using the node type's layout per node. In this sense, Layout Per Node is treated as simply another facet of the content building permissions stack, alongside creating, editing, and deleting node content. Via these permissions, a given site can allow some users to create content and others to manage its layout; another site could grant separate roles to create and layout content for each distinct node type.
 
 
 ### 3. Differences from Panels and Display Suite
