@@ -34,7 +34,7 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
     $data['tabs'][0]['node.layout_editor'] = [
       '#theme' => 'menu_local_task',
       '#link' => [
-        'title' => t('Layout Editor'),
+        'title' => t('Layout'),
         'url' => Url::fromRoute('entity.node.canonical', ['node' => $entity_id], ['query' => ['layout-editor' => '1']]),
       ],
       '#cache' => $cache,
@@ -42,7 +42,7 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
     // The user is in "Layout Editor" mode. Add Switch & Save Layout options.
     if (isset($query['layout-editor'])) {
       $data['tabs'][0]['node.layout_editor']['#link'] = [
-        'title' => t('Exit Layout Editor'),
+        'title' => t('Exit Layout'),
         'url' => $node_url,
       ];
       $data['tabs'][0]['node.switch_layouts'] = [
