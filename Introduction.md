@@ -37,22 +37,32 @@ Once enabled, a new permission definition is added to the permissions system for
 ## 3. Differences from Panels and Paragraphs
 
 ### Panels
-Panels, combined with In-Place Editor (IPE) and Page Manager, has been and continues to be one of the *de facto* approaches to content layout. It is is perhaps the most comprehensive approach, allowing fine-grained control over elements such as field labels, Views contextual filters, and view modes, which arguably comes at a cost feeling either overwhelming for the content builder or providing too much control.
+Panels, combined with In-Place Editor (IPE) and Page Manager, has been and continues to be one of the *de facto* approaches to content layout. It is is perhaps the most comprehensive approach, allowing fine-grained control over elements such as field labels, Views contextual filters, and view modes.
 
-It also exposes all block types provided by all modules immediately, and allows
-the ability to create new content, such as basic blocks, directly via the In-Place Editor.
+Its information architecture is based on per-page-variant approach. Via Page
+Manager, one can create a page variant that would apply to all nodes, or to
+all nodes of a specific content type, or event to a single node ID. The variant
+must, however, be defined. This level of control is typically the purview of a
+site builder, rather than a content builder.
 
-Layout Per Node takes an opt-in approach for which block types should be made available to content builders. It does not allow per-instance configuration of blocks, for example, whether or not to display the title, but inherits this from
-the block configuration itself.
+Panels exposes all block types provided by all modules immediately, and allows
+the ability to create new content via the In-Place Editor.
+
+Layout Per Node differs in the following ways:
+- It takes an opt-in approach for which block types should be made available,
+- It relies on other parts of the system, such as the Block interface or the node
+edit page, for creating content,
+- And it does not allow per-instance configuration of blocks (for example, whether or not to display the block title)
 
 Perhaps the most signficant difference, however, is how each approach handles
 node fields. Panels allows placing node content on a page via Chaos Tools, which
 allows access to entity view modes. From there, the user can choose between any
 predefined view mode to render the node content in different variants. However,
-this requires an appropriate view mode to exist, and most importantly,
-it doesn't allow placement of individual fields separate from each other.
+this requires an appropriate view mode -- once again, typically the purview of
+site builders, not content builders -- to exist. As a result, it doesn't
+directly allow placement of individual fields separate from each other.
 
-Layout Per Node thinks of fields and block the same way: they are individual
+Layout Per Node thinks of fields and blocks the same way: they are individual
 bits of content are placeable anywhere within selected layout.
 
 ### Paragraphs
@@ -67,16 +77,19 @@ of field groupings (which is where the 'paragraph' metaphor comes from).
 
 In the context of Layout Per Node, Paragraph types can be used as complex fields
 which *can* be placed anywhere on a layout. In the example here, I am placing a
-Paragraph type that consists of a headline, image, and copy text, as a single
-entity within any given region in the layout. In this way, these two modules
+Paragraph type that consists of a headline, image, and copy text as a single
+entity within any given region in the layout. These two modules
 can work in a complementary fashion to provide the layout flexibility that
 Paragraphs doesn't provide on its own.
 
-### 4. Extensibility/Coexistence
+### 4. Coexistence/Extensibility
 Layout Per Node's responsibility within the Drupal content building ecosystem is narrow by design:
-- By relying on the `field_layout` paradigm -- and therefore functioning at the node level -- it is not dependent on regions defined by a given theme; indeed Layout Per Node works equally with any theme.
+- By relying on the `field_layout` paradigm -- and therefore functioning at the node level -- it is not dependent on regions defined by a given theme; indeed Layout Per Node works equally with any theme [brief example of Layout
+Per Node being used with the popular [Bootstrap](https://www.drupal.org/project/bootstrap) theme]
 - By relying on the same Layout Discovery system as Panels and Display Suite, it can be used in conjunction with them. Panels IPE can be used for one node type, and Layout Per Node can be used for another on the same site.
-- Moreover, layouts developed by and for one layout system can be used interchangeably with Layout Per Node, provided they follow Layout Discovery standards.*
+- Moreover, layouts developed by and for one layout system can be used interchangeably with Layout Per Node, provided they follow Layout Discovery standards.* [enabling the Bootstrap Layouts module immediately makes these layouts available]
+- With its lightweight footprint, Layout Per Node can be disabled without affecting underlying content; layout will simply revert to the field layout
+defined in the content type.
 
 ### 5. Why "Per *Node*"?
 Drupal 8 has made great strides in standardizing Drupal's disparate 'content buckets' around the Entity API: in D8, taxonomies, blocks, and users share the same API as node types -- and as such, they are also all "fieldable" and can use `field_layout`.
