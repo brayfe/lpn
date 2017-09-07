@@ -35,12 +35,28 @@ Now that we've seen the end product, let's see what it takes to integrate Layout
 Once enabled, a new permission definition is added to the permissions system for using the node type's layout per node. In this sense, Layout Per Node is treated as simply another facet of the content building permissions stack, alongside creating, editing, and deleting node content. Via these permissions, a given site can allow some users to create content and others to manage its layout; another site could grant separate roles to create and layout content for each distinct node type.
 
 
-### 3. Differences from Panels and Display Suite
-Panels, combined with In-Place Editor (IPE) and Page Manager, has been and continues to be one of the *de facto* approaches to content layout. It is is perhaps the most comprehensive approach, allowing fine-grained control over elements such as field labels, Views contextual filters, and view modes, which arguably comes at a cost feeling either overwhelming for the content builder or providing too much control for certain uses cases.
+### 3. Differences from Panels, Display Suite, and Paragraphs
+Panels, combined with In-Place Editor (IPE) and Page Manager, has been and continues to be one of the *de facto* approaches to content layout. It is is perhaps the most comprehensive approach, allowing fine-grained control over elements such as field labels, Views contextual filters, and view modes, which arguably comes at a cost feeling either overwhelming for the content builder or providing too much control.
 
-Layout Per Node does not attempt to support all possible permutations, which leads to a simplified, more intuitive UI that still solves the majority of content use cases.
+It also exposes all block types provided by all modules immediately, and allows
+the ability to create new content, such as basic blocks, directly via the In-Place Editor.
+
+Layout Per Node takes an opt-in approach for which block types should be made available to content builders. It does not allow per-instance configuration of blocks, for example, whether or not to display the title, but inherits this from
+the block configuration itself.
+
+Perhaps the most signficant difference, however, is how each approach handles
+node fields. Panels allows placing node content on a page via Chaos Tools, which
+allows access to entity view modes. From there, the user can choose between any
+predefined view mode to render the node content in different variants. However,
+this requires an appropriate view mode to exist, and most importantly,
+it doesn't allow placement of individual fields separate from each other.
+
+Layout Per Node thinks of fields and block the same way: they are individual
+bits of content are placeable anywhere within selected layout.
 
 (Add a paragraph on Display Suite)
+
+(Add a paragraph on Paragraphs)
 
 
 ### 4. Extensibility/Coexistence
