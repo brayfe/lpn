@@ -12,7 +12,7 @@ If you're familiar with [Panels](https://www.drupal.org/project/panels), another
 
 This walkthrough summarizes Layout Per Node's content building workflow and its minimal setup & configuration, and then provides commentary on the technical implementation and its niche within the Layout Initiative landscape.
 
-### 1. Content Building
+## 1. Content Building
 Let's start with the actual use of Layout Per Node: how a content builder would use it, and how it integrates into Drupal's content editing conventions.
 
 We start with a standard Drupal "article" node, consisting of `body` field, `image` field, `tags` field, and `comments` field. Integrated with the `View`, `Edit` and `Delete` tabs is a new `Layout` tab. Clicking on this tab enables the field_layout region overlay, which defaults to the single content region.
@@ -29,13 +29,14 @@ Now that we have added content to the regions, we have the ability to rearrange 
 
 The ability to revision layouts not only enables reverting not just content *and* content placement, but also the ability to draft new content *and* content placement via Drupal's Workflow module.
 
-### 2. Setup & Configuration
+## 2. Setup & Configuration
 Now that we've seen the end product, let's see what it takes to integrate Layout Per Node in a site. After enabling the module, visit any node type's "Edit" interface. A new `Layout Per Node` vertical tab appears among the others. After ticking the on/off checkbox, a list of all layouts registered via Drupal's Layout Discovery system appear.
 
 Once enabled, a new permission definition is added to the permissions system for using the node type's layout per node. In this sense, Layout Per Node is treated as simply another facet of the content building permissions stack, alongside creating, editing, and deleting node content. Via these permissions, a given site can allow some users to create content and others to manage its layout; another site could grant separate roles to create and layout content for each distinct node type.
 
+## 3. Differences from Panels and Paragraphs
 
-### 3. Differences from Panels, Display Suite, and Paragraphs
+### Panels
 Panels, combined with In-Place Editor (IPE) and Page Manager, has been and continues to be one of the *de facto* approaches to content layout. It is is perhaps the most comprehensive approach, allowing fine-grained control over elements such as field labels, Views contextual filters, and view modes, which arguably comes at a cost feeling either overwhelming for the content builder or providing too much control.
 
 It also exposes all block types provided by all modules immediately, and allows
@@ -54,10 +55,22 @@ it doesn't allow placement of individual fields separate from each other.
 Layout Per Node thinks of fields and block the same way: they are individual
 bits of content are placeable anywhere within selected layout.
 
-(Add a paragraph on Display Suite)
+### Paragraphs
+The Paragraphs module is fast becoming widely adopted as a tool for creating
+complex combinations of fields. As a fieldable entity, Paragraph types allow
+infinite variety in clustering multiple fields together, and clever use of
+Paragraph fields as layout selectors enable a multitude of display variants.
+However, Paragraphs itself is not a layout tool, and content builders cannot
+arbitrarily place fields within any given region on a page. Paragraphs work best
+for sites where the layout architecture consists of stacked horizontal instances
+of field groupings (which is where the 'paragraph' metaphor comes from).
 
-(Add a paragraph on Paragraphs)
-
+In the context of Layout Per Node, Paragraph types can be used as complex fields
+which *can* be placed anywhere on a layout. In the example here, I am placing a
+Paragraph type that consists of a headline, image, and copy text, as a single
+entity within any given region in the layout. In this way, these two modules
+can work in a complementary fashion to provide the layout flexibility that
+Paragraphs doesn't provide on its own.
 
 ### 4. Extensibility/Coexistence
 Layout Per Node's responsibility within the Drupal content building ecosystem is narrow by design:
