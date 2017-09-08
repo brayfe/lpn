@@ -15,8 +15,21 @@ Drag-and-drop editor for node display
 ## Re-usable content
 Currently, layout_per_node makes available two categories of reusable content: Views blocks and custom blocks (of any block type). Eventually, this may expand to cover additional use cases.
 
+### Layout Compatibility
+This module does not provide any layouts. It finds and makes available all
+layouts registered through the core Layout Discovery system.
+
+Layout Discovery templates you provide are responsible for identifying each of their regions the via `region--<region-name>` CSS class syntax, which is required for the drag-and-drop UI to communicate placement. See `core/layout_discovery/layouts` for examples.
+
 ## Road map
 - Add template thumbnails to the "Switch Layouts" form.
+
+### Why "Layout Per *Node*"?
+Drupal 8 has made great strides in standardizing Drupal's disparate 'content buckets' around the Entity API: in D8, taxonomies, blocks, and users share the same API as node types -- and as such, they are also all "fieldable" and can use `field_layout`.
+
+There is, therefore, no inherent *technical* limitation to implementing Layout Per Node's drag-and-drop UI and layout storage backend to taxonomy pages, blocks, users, and arbitrary content entities created by other projects.
+
+The maintainers' decision to limit the ability of the drag-and-drop UI to node types was therefore an attempt to best support the majority of use cases while scoping the code implementation for maintainability.
 
 ## Tests
 All tests are run via PHPUnit, and can be executed singly via
