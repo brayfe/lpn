@@ -1,7 +1,7 @@
 # Layout Per Node
 #### This module allows content builders to select between node layouts and to assign reusable content (blocks) and page-specific content (fields) via a drag-and-drop UI.
 
-<img src="layout_per_node.png" alt="Screenshot of Layout Per Node interface" width="400" />
+<img src="layout_per_node.png" alt="Screenshot of Layout Per Node interface" width="400" align="right" />
 
 Layout Per Node ([layout_per_node](https://www.drupal.org/project/layout_per_node)), a project from developers at the University of Texas, sets out to solve one of the central goals of Drupal's [Blocks & Layout Initiative](https://groups.drupal.org/scotch), namely [emphasis ours] to:
 
