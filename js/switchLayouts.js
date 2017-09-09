@@ -15,6 +15,22 @@
   Drupal.behaviors.layoutPerNodeSwitchLayouts = {
     'attach': function(context) {
 
+      // Update the image preview.
+      updatePreview();
+
+      $('select[name="layout"]').change(function(e){
+        updatePreview();
+      });
+
+      function updatePreview() {
+        var selected = $('select[name="layout"]').val();
+        $('div.template-preview img').each(function() {
+          var $this = $(this);
+          $this.hide();
+        });
+        $('div.template-preview img#preview-' + selected).show();
+      }
+
       // On "Place content on page", append selected content to region & close modal.
       $('[data-layout-editor-switch').unbind('click').bind('click', function(e) {
         e.preventDefault();

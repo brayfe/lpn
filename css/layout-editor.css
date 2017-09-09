@@ -71,3 +71,8 @@ article > div > .layout > .layout__region [data-layout-editor-object] {
   float:right;
   z-index:1000;
 }
+
+.template-preview {
+  display:inline-block;
+  float:right;
+}

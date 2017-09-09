@@ -54,7 +54,7 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
             'attributes' => [
               'class' => ['use-ajax'],
               'data-dialog-type' => 'modal',
-              'data-dialog-options' => Json::encode(['width' => 1000, 'max-height' => 'none']),
+              'data-dialog-options' => Json::encode(['width' => 600, 'max-height' => 'none']),
             ],
           ],
         ],

@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\Entity\Node;
 
 /**
- * Class AddContentForm.
+ * Class SwitchLayoutsForm.
  *
  * @package Drupal\layout_per_node\Form
  */
@@ -24,13 +24,24 @@ class SwitchLayoutsForm extends FormBase {
       $config = \Drupal::config('layout_per_node.allowed');
       $allowed = array_filter($config->get($node->getType()));
       $options = $layoutPluginManager->getLayoutOptions();
-      // Filter only user-defined layouts, if any have been selected.
-      if (!empty($allowed)) {
-        foreach ($options as $category => $layouts) {
-          foreach ($layouts as $key => $label) {
-            if (!in_array($key, $allowed)) {
-              unset($options[$category][$key]);
-            }
+      $definitions = $layoutPluginManager->getDefinitions();
+      $options = [];
+      $module_handler = \Drupal::service('module_handler');
+      $module_path = $module_handler->getModule('layout_per_node')->getPath();
+      foreach ($definitions as $key => $definition) {
+        $category = $definition->get('category');
+        $icon = $definition->get('icon');
+        $options[$category][$key] = $definition->get('label');
+        if ($icon) {
+          $preview[$key] = $icon;
+        }
+        else {
+          $preview[$key] = $module_path . '/images/preview.png';
+        }
+        if (!empty($allowed)) {
+          if (!in_array($key, $allowed)) {
+            unset($options[$category][$key]);
+            unset($preview[$key]);
           }
         }
       }
@@ -41,10 +52,17 @@ class SwitchLayoutsForm extends FormBase {
         $layout_raw = $layout_entity->get('layout')->getValue();
         if ($node && $layout_raw) {
           if (!empty(key($layout_raw[0]))) {
-            $layout = $layout_raw[0];
+            $layout = key($layout_raw[0]);
           }
         }
       }
+
+      $preview_markup = '<div class="template-preview">';
+      foreach ($preview as $key => $icon) {
+        $preview_markup .= '<img id="preview-' . $key . '" src="/' . $icon . '" />';
+      }
+      $preview_markup .= '</div>';
+      $form['preview']['#markup'] = $preview_markup;
 
       $form['layout'] = [
         '#title' => $this->t('Layout'),
@@ -52,7 +70,7 @@ class SwitchLayoutsForm extends FormBase {
         '#options' => $options,
         '#default_value' => $layout,
       ];
-      // @todo -- default to selected value.
+
       $form['#attached']['library'][] = 'layout_per_node/switch_layouts';
       $form['submit'] = [
         '#markup' => '<div class="button js-form-submit form-submit btn btn-primary" data-layout-editor-switch="1" data-nid="' . $query['id'] . '">Apply this layout</div>',
