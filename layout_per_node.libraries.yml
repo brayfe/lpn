@@ -13,6 +13,7 @@ layout_editor:
     - core/jquery.ui.droppable
     - core/jquery.ui.sortable
     - core/drupal.ajax
+    - core/drupal.dialog
 block_place:
   version: VERSION
   css:
@@ -25,6 +26,8 @@ add_content:
       css/ui-dialog.css: {}
   js:
     js/addContent.js: {}
+  dependencies:
+    - layout_per_node/layout_editor
 switch_layouts:
   version: VERSION
   css:
@@ -32,3 +35,5 @@ switch_layouts:
       css/ui-dialog.css: {}
   js:
     js/switchLayouts.js: {}
+  dependencies:
+    - layout_per_node/layout_editor

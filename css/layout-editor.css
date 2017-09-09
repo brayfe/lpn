@@ -1,4 +1,4 @@
-article[data-history-node-id] > div > .layout > .layout__region {
+article > div > .layout > .layout__region {
   margin:-2px;
   border:1px solid #ccc;
 }
@@ -28,11 +28,11 @@ div[data-layout-editor-preview] img, div[data-layout-editor-object] img {
   display:block;
 }
 
-article[data-history-node-id] > div > .layout > .layout-editor-highlighted {
+article > div > .layout > .layout-editor-highlighted {
   border:1px solid green;
 }
 
-article[data-history-node-id] > div > .layout > .layout__region [data-layout-editor-object] {
+article > div > .layout > .layout__region [data-layout-editor-object] {
   outline: 1px dashed rgba(0,0,0,0.5);
   box-shadow: 0 0 0 1px rgba(255,255,255,0.7);
   margin: 0.5em 0.5em;

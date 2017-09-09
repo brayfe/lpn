@@ -32,7 +32,7 @@
         var content = $("[data-layout-editor-preview]").contents();
         var region = $(this).data('region');
         var regionCSS = region.replace('_', '-');
-        $("article[data-history-node-id] > div > .layout > .layout__region.layout__region--" + regionCSS).prepend(content);
+        $("article > div > .layout > .layout__region.layout__region--" + regionCSS).prepend(content);
         // Close modal.
         if ( $( '.modal-backdrop' ).length ) {
           // Bootstrap method.
@@ -64,19 +64,25 @@
           dataType: 'json',
           success: function (results) {
             window.location.href = "/node/" + nid;
-          }
+          },
+          error: function(data) {
+            alert('There was a problem saving the layout as it is. At least one region must have content.');
+          },
         });
       });
 
       // Helper function: find what content has been placed in what region.
       function retrieveCurrentLayout() {
         var pageLayout = new Object();
-        var templateDiv = $('article[data-history-node-id] > div > .layout');
+        var templateDiv = $('article > div > .layout');
         var templateClass = templateDiv.attr('class').match(/layout--\S+/);
         if (templateClass) {
           var template = templateClass[0].replace('layout--', '');
         }
-        $('article[data-history-node-id] > div > .layout > .layout__region').each(function() {
+        else {
+          alert('The layout you are trying to use is missing "layout--" markup and is therefore incompatible with Layout Per Node');
+        }
+        $('article > div > .layout > .layout__region').each(function() {
           var $this = $(this);
           var className = $this.attr('class').match(/layout__region--\S+/);
           if (className) {
@@ -117,7 +123,7 @@
       // Make eligible content draggable.
       function addElements() {
         // Loop through all Drupal "regions" in the main-wrapper.
-        $('article[data-history-node-id] > div > .layout > .layout__region').each(function() {
+        $('article > div > .layout > .layout__region').each(function() {
           // Loop through all elements in node-level "layout_region"
           // If they are in a page builder region & are not core/system
           // add sortable & droppable.
