@@ -18,8 +18,8 @@ class SwitchLayoutsForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $query = \Drupal::request()->query->all();
-    if (isset($query['node'])) {
-      $node = Node::load($query['node']);
+    if (isset($query['id'])) {
+      $node = Node::load($query['id']);
       $layoutPluginManager = \Drupal::service('plugin.manager.core.layout');
       $config = \Drupal::config('layout_per_node.allowed');
       $allowed = array_filter($config->get($node->getType()));
@@ -55,7 +55,7 @@ class SwitchLayoutsForm extends FormBase {
       // @todo -- default to selected value.
       $form['#attached']['library'][] = 'layout_per_node/switch_layouts';
       $form['submit'] = [
-        '#markup' => '<div class="button js-form-submit form-submit btn btn-primary" data-layout-editor-switch="1" data-nid="' . $query['node'] . '">Apply this layout</div>',
+        '#markup' => '<div class="button js-form-submit form-submit btn btn-primary" data-layout-editor-switch="1" data-nid="' . $query['id'] . '">Apply this layout</div>',
       ];
     }
     return $form;

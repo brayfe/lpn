@@ -171,7 +171,7 @@ class LayoutPerNodeManager {
     if ($node) {
       // Save the layout to the layout_per_node_entity.
       $layout_entity = entity_create('layout_per_node_layout', array(
-        'nid' => $nid,
+        'entity_id' => $nid,
         'vid' => $node->vid->value,
         'entity_type' => 'node',
         'layout' => $layout,
@@ -267,11 +267,11 @@ class LayoutPerNodeManager {
    *   The node id, or 0, if not eligible.
    */
   public function eligibleNode() {
-    $allowed = '0';
+    $allowed = [];
     if ($node = $this->getCurrentNode()) {
       $config = $this->configFactory->get('layout_per_node.enabled');
       $is_enabled = $config->get($node->getType());
-      if ($is_enabled && $this->currentUser->hasPermission('use layout per node')) {
+      if ($is_enabled && $this->currentUser->hasPermission('use ' . $node->getType() . ' layout per node')) {
         $allowed = $node->id();
       }
     }
@@ -311,28 +311,28 @@ class LayoutPerNodeManager {
   public function getLayoutEntity($nid = 0, $vid = 0) {
     if (!$nid && !$vid) {
       $node = $this->getCurrentNode();
-      $nid = $node->id();
+      $entity_id = $node->id();
       $vid = $node->vid->value;
     }
 
     $query = \Drupal::entityQuery('layout_per_node_layout')
-      ->condition('nid', $nid)
+      ->condition('entity_id', $nid)
       ->condition('vid', $vid);
     $ids = $query->execute();
     if (!empty($ids)) {
-      if ($entity = entity_load('layout_per_node_layout', key($ids))) {
-        return $entity;
+      if ($layout = entity_load('layout_per_node_layout', key($ids))) {
+        return $layout;
       }
     }
     else {
       // New node data was just saved. Get the previous revision's layout.
       $query = \Drupal::entityQuery('layout_per_node_layout')
-        ->condition('nid', $nid)
+        ->condition('entity_id', $nid)
         ->condition('vid', $vid - 1);
       $ids = $query->execute();
       if (!empty($ids)) {
-        if ($entity = entity_load('layout_per_node_layout', key($ids))) {
-          return $entity;
+        if ($layout = entity_load('layout_per_node_layout', key($ids))) {
+          return $layout;
         }
       }
     }

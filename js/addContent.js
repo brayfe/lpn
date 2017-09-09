@@ -34,16 +34,16 @@
       // On click, build and display preview content.
       $('[data-layout-editor-addable').unbind('click').bind('click', function(e) {
         e.preventDefault();
-        var nid = drupalSettings.field_layout_editor.nid;
-        var id = $(this).data('layout-editor-addable');
+        var entity_id = drupalSettings.field_layout_editor.nid;
+        var container = $(this).data('layout-editor-addable');
         var type = $(this).data('layout-editor-type');
         $.ajax({
-          url: Drupal.url("admin/config/layout-per-node/get"),
+          url: Drupal.url("admin/layout-per-node/get"),
           type: 'POST',
           data: {
-            'nid': nid,
+            'id': entity_id,
             'type': type,
-            'id': id,
+            'container': container,
           },
           dataType: 'json',
           success: function (results) {

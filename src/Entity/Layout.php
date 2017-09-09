@@ -46,14 +46,14 @@ class Layout extends ContentEntityBase implements ContentEntityInterface {
       ->setDescription(t('The entity type of the item.'))
       ->setReadOnly(TRUE);
 
-    $fields['nid'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('NID'))
-      ->setDescription(t('The node id.'))
+    $fields['entity_id'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Entity ID'))
+      ->setDescription(t('The entity id.'))
       ->setReadOnly(TRUE);
 
     $fields['vid'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('VID'))
-      ->setDescription(t('The node vid.'))
+      ->setDescription(t('The revision id.'))
       ->setReadOnly(TRUE);
 
     $fields['layout'] = BaseFieldDefinition::create('map')

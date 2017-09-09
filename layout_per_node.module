@@ -28,28 +28,28 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
     ],
   ];
 
-  if ($nid = \Drupal::service('layout_per_node.manager')->eligibleNode()) {
-    $node_url = Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE]);
+  if ($entity_id = \Drupal::service('layout_per_node.manager')->eligibleNode()) {
+    $node_url = Url::fromRoute('entity.node.canonical', ['node' => $entity_id], ['absolute' => TRUE]);
     $query = \Drupal::request()->query->all();
     $data['tabs'][0]['node.layout_editor'] = [
       '#theme' => 'menu_local_task',
       '#link' => [
-        'title' => t('Layout Editor'),
-        'url' => Url::fromRoute('entity.node.canonical', ['node' => $nid], ['query' => ['layout-editor' => '1']]),
+        'title' => t('Layout'),
+        'url' => Url::fromRoute('entity.node.canonical', ['node' => $entity_id], ['query' => ['layout-editor' => '1']]),
       ],
       '#cache' => $cache,
     ];
     // The user is in "Layout Editor" mode. Add Switch & Save Layout options.
     if (isset($query['layout-editor'])) {
       $data['tabs'][0]['node.layout_editor']['#link'] = [
-        'title' => t('Exit Layout Editor'),
+        'title' => t('Exit Layout'),
         'url' => $node_url,
       ];
       $data['tabs'][0]['node.switch_layouts'] = [
         '#theme' => 'menu_local_task',
         '#link' => [
           'title' => t('Switch Layouts'),
-          'url' => Url::fromRoute('layout_per_node.switch_layouts', [], ['query' => ['node' => $nid]]),
+          'url' => Url::fromRoute('layout_per_node.switch_layouts', [], ['query' => ['id' => $entity_id]]),
           'localized_options' => [
             'attributes' => [
               'class' => ['use-ajax'],
@@ -105,7 +105,7 @@ function layout_per_node_node_update(EntityInterface $entity) {
  */
 function layout_per_node_node_delete(EntityInterface $entity) {
   $query = \Drupal::entityQuery('layout_per_node_layout')
-    ->condition('nid', $entity->id());
+    ->condition('entity_id', $entity->id());
   $ids = $query->execute();
   if (!empty($ids)) {
     entity_delete_multiple('layout_per_node_layout', $ids);
