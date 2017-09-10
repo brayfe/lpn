@@ -32,7 +32,7 @@
         var content = $("[data-layout-editor-preview]").contents();
         var region = $(this).data('region');
         var regionCSS = region.replace('_', '-');
-        $("article > div > .layout > .layout__region.layout__region--" + regionCSS).prepend(content);
+        $('article > div > div > [class*=region--'+ regionCSS + ']').prepend(content);
         // Close modal.
         if ( $( '.modal-backdrop' ).length ) {
           // Bootstrap method.
@@ -74,31 +74,26 @@
       // Helper function: find what content has been placed in what region.
       function retrieveCurrentLayout() {
         var pageLayout = new Object();
-        var templateDiv = $('article > div > .layout');
-        var templateClass = templateDiv.attr('class').match(/layout--\S+/);
-        if (templateClass) {
-          var template = templateClass[0].replace('layout--', '');
-        }
-        else {
-          alert('The layout you are trying to use is missing "layout--" markup and is therefore incompatible with Layout Per Node');
-        }
-        $('article > div > .layout > .layout__region').each(function() {
-          var $this = $(this);
-          var className = $this.attr('class').match(/layout__region--\S+/);
-          if (className) {
-            var region = className[0].replace('layout__region--', '');
-          }
-          pageLayout[region] = {};
-          var $this = $(this);
-          $('[data-layout-editor-object]', $this).each(function() {
-            var id = $(this).data('layout-editor-object');
-            var type = $(this).data('layout-editor-type');
-            pageLayout[region][id] = type;
+        var templateClasses = $('article > div.content > div').attr("class").split(' ');
+        if (templateClasses) {
+          var lastElement = templateClasses.length - 1;
+          // Get the last element from the class list for that div.
+          var template = templateClasses[lastElement];
+          $('article > div > div > [class*=region--]').each(function() {
+            var $this = $(this);
+            var region = getRegionName($this);
+            pageLayout[region] = {};
+            var $this = $(this);
+            $('[data-layout-editor-object]', $this).each(function() {
+              var id = $(this).data('layout-editor-object');
+              var type = $(this).data('layout-editor-type');
+              pageLayout[region][id] = type;
+            });
           });
-        });
-        var final = {};
-        final[template] = pageLayout;
-        return final;
+          var final = {};
+          final[template] = pageLayout;
+          return final;
+        }
       }
 
       // Helper function: parse URL to retrieve region & node.
@@ -107,15 +102,20 @@
         name = name.replace(/[\[\]]/g, "\\$&");
         var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
         results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
+        if (!results) {
+          return null;
+        }
+        if (!results[2]) {
+          return '';
+        }
         return decodeURIComponent(results[2].replace(/\+/g, " "));
       }
 
       function getRegionName(item) {
-        var className = item.attr('class').match(/layout__region--\S+/);
+        var className = item.attr('class').match(/\S+region--\S+/);
         if (className) {
-          var region = className[0].replace('layout__region--', '');
+          var split = className[0].split('region--');
+          var region = split[1];
           return region;
         }
       }
@@ -123,8 +123,8 @@
       // Make eligible content draggable.
       function addElements() {
         // Loop through all Drupal "regions" in the main-wrapper.
-        $('article > div > .layout > .layout__region').each(function() {
-          // Loop through all elements in node-level "layout_region"
+        $('article > div > div > [class*=region--]').each(function() {
+          // Loop through all elements in node-level "region"
           // If they are in a page builder region & are not core/system
           // add sortable & droppable.
 

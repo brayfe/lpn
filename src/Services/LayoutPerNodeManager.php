@@ -146,7 +146,10 @@ class LayoutPerNodeManager {
       $output = [];
       foreach ($updated_layout as $layout_raw => $values) {
         // This defines which layout ID the regions & fields correspond to.
-        $layout_id = 'layout_' . str_replace('-', '_', $layout_raw);
+        $layout_id = str_replace('-', '_', $layout_raw);
+        // Handle edge-case with core layouts where CSS doesn't quite
+        // match the template ID.
+        $layout_id = str_replace('layout__', 'layout_', $layout_id);
         foreach ($values as $region => $contents) {
           $region = str_replace('-', '_', $region);
           foreach ($contents as $id => $type) {

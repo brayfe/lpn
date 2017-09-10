@@ -21,7 +21,7 @@
   Drupal.behaviors.layoutPerNodeAddContent = {
     'attach': function(context) {
       // On load, strip content items already present in working layout.
-      $('.layout__region').each(function() {
+      $('article > div > div > [class*=region--]').each(function() {
         var $this = $(this);
         $('[data-layout-editor-object]', $this).each(function() {
           var id = $(this).data('layout-editor-object');
