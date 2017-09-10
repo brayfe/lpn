@@ -6,6 +6,8 @@
  */
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -18,7 +20,8 @@ use Drupal\layout_per_node\LayoutEditorBuilder;
  *
  * Add "Layout Editor," "Switch Layouts," and "Save Layout" to primary tabs.
  */
-function layout_per_node_menu_local_tasks_alter(&$data, $route_name) {
+function layout_per_node_menu_local_tasks_alter(&$data, $route_name, RefinableCacheableDependencyInterface &$cacheability) {
+  $cacheability->addCacheTags(['layout_per_node:tabs']);
   $cache = [
     'contexts' => [
       'user.permissions',
@@ -118,6 +121,7 @@ function layout_per_node_node_delete(EntityInterface $entity) {
  * Add an "Enable layout per node" checkbox to content type Edit form.
  */
 function layout_per_node_form_node_type_edit_form_alter(&$form, FormStateInterface $form_state) {
+  Cache::invalidateTags(['layout_per_node:tabs']);
   $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
   $config = \Drupal::config('layout_per_node.enabled');
   $enabled = $config->get($node_type->id());
