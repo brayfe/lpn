@@ -74,7 +74,7 @@
       // Helper function: find what content has been placed in what region.
       function retrieveCurrentLayout() {
         var pageLayout = new Object();
-        var templateClasses = $('article > div.content > div').attr("class").split(' ');
+        var templateClasses = $('article > div > div').attr("class").split(' ');
         if (templateClasses) {
           var lastElement = templateClasses.length - 1;
           // Get the last element from the class list for that div.
