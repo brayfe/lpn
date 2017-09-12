@@ -55,7 +55,7 @@ Layout Per Node differs in the following ways:
 edit page, for creating content,
 1. And it does not allow per-instance configuration of blocks (for example, whether or not to display the block title)
 
-Perhaps the most signficant difference, however, is how Panels & Layout Per Node handle fields:
+Perhaps the most significant difference, however, is how Panels & Layout Per Node handle fields:
 - Panels allows placing node content on a page via Chaos Tools, which
 allows access to entity view modes. From there, the user can choose between any
 predefined view mode to render the node content in different variants. However,
@@ -107,4 +107,3 @@ a suggested guide:
 
 ### Download & Support
 For more information, visit https://drupal.org/project/layout_per_node
-
