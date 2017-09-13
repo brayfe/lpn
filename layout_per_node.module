@@ -5,7 +5,6 @@
  * Contains layout_per_node.module.
  */
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -47,34 +46,6 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name, RefinableCa
       $data['tabs'][0]['node.layout_editor']['#link'] = [
         'title' => t('Exit Layout'),
         'url' => $node_url,
-      ];
-      $data['tabs'][0]['node.switch_layouts'] = [
-        '#theme' => 'menu_local_task',
-        '#link' => [
-          'title' => t('Switch Layouts'),
-          'url' => Url::fromRoute('layout_per_node.switch_layouts', [], ['query' => ['id' => $entity_id]]),
-          'localized_options' => [
-            'attributes' => [
-              'class' => ['use-ajax'],
-              'data-dialog-type' => 'modal',
-              'data-dialog-options' => Json::encode(['width' => 600, 'max-height' => 'none']),
-            ],
-          ],
-        ],
-        '#cache' => $cache,
-      ];
-      $data['tabs'][0]['node.save_layout'] = [
-        '#theme' => 'menu_local_task',
-        '#link' => [
-          'title' => t('Save Layout'),
-          'url' => $node_url,
-          'localized_options' => [
-            'attributes' => [
-              'id' => 'layout-editor-save',
-            ],
-          ],
-        ],
-        '#cache' => $cache,
       ];
     }
   }
