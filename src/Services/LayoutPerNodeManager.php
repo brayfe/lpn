@@ -132,6 +132,7 @@ class LayoutPerNodeManager {
    *   Whether the layout was successfully saved or not.
    */
   public function updateLayout($nid, array $updated_layout = []) {
+    $layout = [];
     $node = $this->getCurrentNode($nid);
     if ($existing_layout_entity = $this->getLayoutEntity($node->id(), $node->vid->value)) {
       $existing_layout = $existing_layout_entity->get('layout')->getValue();
