@@ -7,6 +7,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Layout\LayoutPluginManagerInterface;
+use Drupal\Core\Url;
 use Drupal\field_layout\Display\EntityDisplayWithLayoutInterface;
 use Drupal\field_layout\FieldLayoutBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -188,6 +189,9 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
 
       // Provide the layout editor overlay if we are in "layout editor" mode.
       if (isset($query['layout-editor'])) {
+        $build['action_links'] = $this->actionLinks($node->id());
+        $build['action_links']['#prefix'] = '<ul class="list-inline local-actions action-links">';
+        $build['action_links']['#suffix'] = '</ul>';
         // Make the node ID available as a JavaScript variable.
         $build['#attached']['drupalSettings']['field_layout_editor']['nid'] = $node->id();
         $build['#attached']['library'][] = 'layout_per_node/block_place';
@@ -256,6 +260,42 @@ class LayoutEditorBuilder extends FieldLayoutBuilder {
       $revision = $parts[4];
     }
     return $revision;
+  }
+
+  /**
+   * Custom callback to provide action links for Switching & Saving layout.
+   *
+   * @param string $nid
+   *    The node ID.
+   */
+  protected function actionLinks($nid) {
+    $data['switch_layouts'] = [
+      '#theme' => 'menu_local_action',
+      '#link' => [
+        'title' => t('Switch Layouts'),
+        'url' => Url::fromRoute('layout_per_node.switch_layouts', [], ['query' => ['id' => $nid]]),
+        'localized_options' => [
+          'attributes' => [
+            'class' => ['use-ajax'],
+            'data-dialog-type' => 'modal',
+            'data-dialog-options' => Json::encode(['width' => 600, 'max-height' => 'none']),
+          ],
+        ],
+      ],
+    ];
+    $data['save_layout'] = [
+      '#theme' => 'menu_local_action',
+      '#link' => [
+        'title' => t('Save Layout'),
+        'url' => Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE]),
+        'localized_options' => [
+          'attributes' => [
+            'id' => 'layout-editor-save',
+          ],
+        ],
+      ],
+    ];
+    return $data;
   }
 
 }
