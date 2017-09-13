@@ -2,17 +2,43 @@
 
 namespace Drupal\layout_per_node;
 
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Routing\UrlGeneratorTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\node\Entity\NodeType;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides dynamic permissions for nodes of different types.
  */
-class LayoutPermissions {
+class LayoutPermissions implements ContainerInjectionInterface {
 
   use StringTranslationTrait;
   use UrlGeneratorTrait;
+
+  /**
+   * Drupal\Core\Config\ConfigFactory definition.
+   *
+   * @var \Drupal\Core\Config\ConfigFactory
+   */
+  protected $configFactory;
+
+  /**
+   * Constructor.
+   */
+  public function __construct(ConfigFactory $config_factory) {
+    $this->configFactory = $config_factory->get('layout_per_node.enabled');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory')
+    );
+  }
 
   /**
    * Returns an array of node type permissions.
@@ -26,9 +52,11 @@ class LayoutPermissions {
     $perms = [];
     // Generate node permissions for all node types.
     foreach (NodeType::loadMultiple() as $type) {
-      $perms += $this->buildPermissions($type);
+      $enabled = $this->configFactory->get($type->id());
+      if ($enabled) {
+        $perms += $this->buildPermissions($type);
+      }
     }
-
     return $perms;
   }
 
