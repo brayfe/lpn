@@ -148,7 +148,7 @@ function layout_per_node_form_node_type_edit_form_alter(&$form, FormStateInterfa
   }
   $form['layout_editor']['layout_per_node_allowed'] = [
     '#title' => 'Allowed Layouts',
-    '#description' => 'If no layouts are selected, all will remain available.',
+    '#suffix' => '<h4>&#9432; If no layouts are selected, all will remain available.</h4>',
     '#type' => 'checkboxes',
     '#options' => $available_layouts,
     '#default_value' => $default_layouts,
