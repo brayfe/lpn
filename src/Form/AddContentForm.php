@@ -23,38 +23,52 @@ class AddContentForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $parameters = $this->getParameters();
     if (isset($parameters['id'])) {
-      $form['tabs'] = array(
+      $form['tabs'] = [
         '#prefix' => '<div class="one-third">',
         '#type' => 'vertical_tabs',
         '#title' => t('Settings'),
         '#suffix' => '</div>',
-      );
-      $form['fields'] = array(
+      ];
+      $form['fields'] = [
         '#type' => 'details',
         '#title' => t('Fields (page-specific)'),
         '#group' => 'tabs',
-      );
+      ];
       $form['fields'] += $this->buildFields($parameters['id']);
-      $form['content_blocks'] = array(
+      $form['content_blocks'] = [
         '#type' => 'details',
-        '#title' => t('Blocks (site-wide)'),
+        '#title' => t('Custom Blocks (site-wide)'),
         '#group' => 'tabs',
-      );
+      ];
       $form['content_blocks'] += $this->buildContentBlocks();
-      $form['views_blocks'] = array(
-        '#type' => 'details',
-        '#title' => t('Lists (Views)'),
-        '#group' => 'tabs',
-      );
-      $form['views_blocks'] += $this->buildViewsBlocks();
+
+      // Determine which modules can provide content.
+      $config = \Drupal::config('layout_per_node.settings')->get();
+      $allowedContent = array_filter($config, function ($provider, $value) {
+        return $value ? $provider : NULL;}, ARRAY_FILTER_USE_BOTH);
+
+      // Used to get human-readable module name.
+      $moduleHandler = \Drupal::moduleHandler();
+      // Build vertical tab for each module's blocks.
+      foreach (array_keys($allowedContent) as $type) {
+        $form[$type] = [
+          '#type' => 'details',
+          '#title' => $moduleHandler->getName($type),
+          '#group' => 'tabs',
+        ];
+        // Get allowed blocks from module.
+        $form[$type] += $this->buildOtherContent($type);
+      }
+
       $form += $this->addPreview();
       $form['submit'] = [
         '#markup' => '<div class="button js-form-submit form-submit btn btn-primary" data-layout-editor-add="1" data-region="' . $parameters['region'] . '">Place on page</div>',
-        '#allowed_tags' => array('div'),
+        '#allowed_tags' => ['div'],
       ];
       $form['#attached']['library'][] = 'layout_per_node/layout_editor';
       $form['#attached']['library'][] = 'layout_per_node/add_content';
     }
+
     return $form;
   }
 
@@ -75,14 +89,16 @@ class AddContentForm extends FormBase {
   }
 
   /**
-   * Custom callback to create markup with available Views blocks.
+   * Custom callback to create markup with available module blocks.
    */
-  protected function buildViewsBlocks() {
+  protected function buildOtherContent($type) {
+    $form = [];
     $blockManager = \Drupal::service('plugin.manager.block');
     $contextRepository = \Drupal::service('context.repository');
     $definitions = $blockManager->getDefinitionsForContexts($contextRepository->getAvailableContexts());
+
     foreach ($definitions as $id => $definition) {
-      if ($definition['provider'] == 'views') {
+      if ($definition['provider'] == $type) {
         $form[$id]['#markup'] = $this->renderButton($id, $definition['admin_label'], 'plugin_block');
       }
     }
@@ -174,7 +190,7 @@ class AddContentForm extends FormBase {
    * Helper function to parse GET query parameters.
    */
   protected function getParameters() {
-    $return = array();
+    $return = [];
     $query = \Drupal::request()->query->all();
     if (isset($query['id'])) {
       $return['id'] = $query['id'];

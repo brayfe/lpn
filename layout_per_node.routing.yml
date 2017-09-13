@@ -33,3 +33,11 @@ layout_per_node.switch_layouts:
   requirements:
     _layout_access: 'use'
     _csrf_token: 'TRUE'
+
+layout_per_node.settings:
+  path: '/admin/config/content/lpn'
+  defaults:
+    _form: '\Drupal\layout_per_node\Form\SettingsForm'
+    _title: 'Layout Per Node settings'
+  requirements:
+    _permission: 'administer site configuration'
