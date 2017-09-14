@@ -1,5 +1,5 @@
 eureka_notifications.settings:
-  title: "Layout Per Node Settings"
+  title: "Layout Per Node settings"
   description: "Configure which content is availabe to layout editors."
   route_name: layout_per_node.settings
   parent: system.admin_config_content
