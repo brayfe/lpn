@@ -68,8 +68,11 @@ class SettingsForm extends ConfigFormBase {
         if ($count == 5) {
           break;
         }
-        $examples .= $name . ", ";
-        $count++;
+        // Remove "Broken/Missing" block from examples to reduce confusion.
+        if ($id != 'broken') {
+          $examples .= $name . ", ";
+          $count++;
+        }
       }
 
       $form['options'][$machine_name]['#title'] = $moduleHandler->getName($machine_name) . "  (" . substr($examples, 0, -2) . ")";
