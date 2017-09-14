@@ -49,7 +49,7 @@ class LayoutEditorController extends ControllerBase {
    * preview with content that may be placed into the layout.
    *
    * @param Request $request
-   *    This should alway include the nid, entity type, and unique id.
+   *    This should always include the nid, entity type, and unique id.
    *
    * @return JSON
    *    A render array.
