@@ -1,28 +1,10 @@
-layout_per_node.enabled:
-  type: config_object
-  label: 'Layout Per Node Enabled Content Types'
+layout_per_node.*:
+  type: config_entity
+  label: 'Layout Per Node (per node type) settings'
   mapping:
-    article:
-      type: string
-      label: 'The node content type'
-layout_per_node.allowed:
-  type: config_object
-  label: 'Layout Per Node Allowed layouts per content type'
-  mapping:
-    name:
-      type: string
-    layouts:
+    enabled:
+      type: boolean
+      label: 'Whether Layout Per Node is enabled'
+    allowed:
       type: sequence
-      sequence:
-        type: string
-layout_per_node.allowed.*:
-  type: config_object
-  label: 'A type of entity config'
-  mapping:
-    name:
-      type: string
-    layouts:
-      type: sequence
-      sequence:
-        type: string
-        
+      label: 'Allowed Layouts'

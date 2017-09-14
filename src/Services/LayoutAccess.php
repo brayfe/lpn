@@ -27,8 +27,8 @@ class LayoutAccess implements AccessInterface {
 
     if (isset($id)) {
       $node = Node::load($id);
-      $config = \Drupal::config('layout_per_node.enabled');
-      $is_enabled = $config->get($node->getType());
+      $config = \Drupal::config('layout_per_node.' . $node->getType());
+      $is_enabled = $config->get('enabled');
       return AccessResult::allowedIf($is_enabled && $account->hasPermission('use ' . $node->getType() . ' layout per node'));
     }
     return AccessResult::allowedIf(FALSE);
