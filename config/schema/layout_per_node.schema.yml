@@ -1,0 +1,28 @@
+layout_per_node.enabled:
+  type: config_object
+  label: 'Layout Per Node Enabled Content Types'
+  mapping:
+    article:
+      type: string
+      label: 'The node content type'
+layout_per_node.allowed:
+  type: config_object
+  label: 'Layout Per Node Allowed layouts per content type'
+  mapping:
+    name:
+      type: string
+    layouts:
+      type: sequence
+      sequence:
+        type: string
+layout_per_node.allowed.*:
+  type: config_object
+  label: 'A type of entity config'
+  mapping:
+    name:
+      type: string
+    layouts:
+      type: sequence
+      sequence:
+        type: string
+        
