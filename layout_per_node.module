@@ -53,6 +53,20 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name, RefinableCa
 }
 
 /**
+ * Implements hook_ENTITY_TYPE_insert().
+ *
+ * Save a layout entity with empty data upon initial node save.
+ */
+function layout_per_node_node_insert(EntityInterface $entity) {
+  $config = \Drupal::config('layout_per_node.enabled');
+  $enabled = $config->get($entity->getType());
+  if ($enabled) {
+    $layoutPerNodeManager = \Drupal::service('layout_per_node.manager');
+    $layoutPerNodeManager->updateLayout($entity->id(), []);
+  }
+}
+
+/**
  * Implements hook_ENTITY_TYPE_update().
  *
  * Whenever node data is re-saved, a corresponding layout with VID must be
@@ -63,12 +77,28 @@ function layout_per_node_node_update(EntityInterface $entity) {
   $enabled = $config->get($entity->getType());
   if ($enabled) {
     $new_revision = TRUE;
+    // 1. First, we check that this is not an update triggered by "Save Layout",
+    // since that will save the layout automatically.
     if ($entity->getRevisionLogMessage() != 'Layout updated') {
       $layoutPerNodeManager = \Drupal::service('layout_per_node.manager');
-      // This will create a new layout revision with the existing layout,
-      // since no 2nd parameter was passed to updateContent. This takes care of
-      // keeping the layout revisions up-to-date with regular node saves.
-      $layoutPerNodeManager->updateLayout($entity->id());
+      $revert_to_revision = $entity->getLoadedRevisionId();
+      // 2. Check if the operation is reverting to a previous revision.
+      if ($revert_to_revision) {
+        $layout = $layoutPerNodeManager->getLayoutEntity($entity->id(), $revert_to_revision);
+        // 3. Check if the previous revision has layout data (first won't).
+        if ($layout) {
+          // A: Save the previous revision's layout data to this new revision.
+          $layoutPerNodeManager->updateLayout($entity->id(), $layout->get('layout')->getValue());
+        }
+        else {
+          // B: Save a layout_per_node revision with empty layout data.
+          $layoutPerNodeManager->updateLayout($entity->id(), []);
+        }
+      }
+      else {
+        // C. Save a new layout revision with the same data as the previous VID.
+        $layoutPerNodeManager->updateLayout($entity->id());
+      }
     }
   }
 }
