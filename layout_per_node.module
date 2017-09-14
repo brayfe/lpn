@@ -5,7 +5,6 @@
  * Contains layout_per_node.module.
  */
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -18,10 +17,13 @@ use Drupal\layout_per_node\LayoutEditorBuilder;
 /**
  * Implements hook_menu_local_tasks_alter().
  *
- * Add "Layout Editor," "Switch Layouts," and "Save Layout" to primary tabs.
+ * Add "Layout" to primary tabs.
  */
 function layout_per_node_menu_local_tasks_alter(&$data, $route_name, RefinableCacheableDependencyInterface &$cacheability) {
+  // Ensure that an update to the node "edit" form invalidates this cache.
+  // @see layout_per_node_form_node_type_edit_form_alter().
   $cacheability->addCacheTags(['layout_per_node:tabs']);
+  // Ensure the user's permissions & appropriate query args invalidate cache.
   $cache = [
     'contexts' => [
       'user.permissions',
@@ -30,10 +32,7 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name, RefinableCa
       'url.query_args:layout',
     ],
   ];
-
   if ($entity_id = \Drupal::service('layout_per_node.manager')->eligibleNode()) {
-    $node_url = Url::fromRoute('entity.node.canonical', ['node' => $entity_id], ['absolute' => TRUE]);
-    $query = \Drupal::request()->query->all();
     $data['tabs'][0]['node.layout_editor'] = [
       '#theme' => 'menu_local_task',
       '#link' => [
@@ -42,39 +41,12 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name, RefinableCa
       ],
       '#cache' => $cache,
     ];
-    // The user is in "Layout Editor" mode. Add Switch & Save Layout options.
+    $query = \Drupal::request()->query->all();
+    // The user is in "Layout Editor" mode. Change title & url.
     if (isset($query['layout-editor'])) {
       $data['tabs'][0]['node.layout_editor']['#link'] = [
         'title' => t('Exit Layout'),
-        'url' => $node_url,
-      ];
-      $data['tabs'][0]['node.switch_layouts'] = [
-        '#theme' => 'menu_local_task',
-        '#link' => [
-          'title' => t('Switch Layouts'),
-          'url' => Url::fromRoute('layout_per_node.switch_layouts', [], ['query' => ['id' => $entity_id]]),
-          'localized_options' => [
-            'attributes' => [
-              'class' => ['use-ajax'],
-              'data-dialog-type' => 'modal',
-              'data-dialog-options' => Json::encode(['width' => 600, 'max-height' => 'none']),
-            ],
-          ],
-        ],
-        '#cache' => $cache,
-      ];
-      $data['tabs'][0]['node.save_layout'] = [
-        '#theme' => 'menu_local_task',
-        '#link' => [
-          'title' => t('Save Layout'),
-          'url' => $node_url,
-          'localized_options' => [
-            'attributes' => [
-              'id' => 'layout-editor-save',
-            ],
-          ],
-        ],
-        '#cache' => $cache,
+        'url' => Url::fromRoute('entity.node.canonical', ['node' => $entity_id], ['absolute' => TRUE]),
       ];
     }
   }
@@ -121,7 +93,10 @@ function layout_per_node_node_delete(EntityInterface $entity) {
  * Add an "Enable layout per node" checkbox to content type Edit form.
  */
 function layout_per_node_form_node_type_edit_form_alter(&$form, FormStateInterface $form_state) {
+  // Ensure that an update to the node "edit" form invalidates this cache.
+  // @see layout_per_node_menu_local_tasks_alter.
   Cache::invalidateTags(['layout_per_node:tabs']);
+
   $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
   $config = \Drupal::config('layout_per_node.enabled');
   $enabled = $config->get($node_type->id());
@@ -148,7 +123,7 @@ function layout_per_node_form_node_type_edit_form_alter(&$form, FormStateInterfa
   }
   $form['layout_editor']['layout_per_node_allowed'] = [
     '#title' => 'Allowed Layouts',
-    '#description' => 'If no layouts are selected, all will remain available.',
+    '#suffix' => '<h4>&#9432; If no layouts are selected, all will remain available.</h4>',
     '#type' => 'checkboxes',
     '#options' => $available_layouts,
     '#default_value' => $default_layouts,
