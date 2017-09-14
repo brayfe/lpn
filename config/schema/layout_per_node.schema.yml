@@ -25,3 +25,4 @@ layout_per_node.allowed.*:
       type: sequence
       sequence:
         type: string
+        
