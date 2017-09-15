@@ -24,7 +24,7 @@ class SettingsForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'layout_per_node.settings',
+      'layout_per_node.settings.module_settings',
     ];
   }
 
@@ -32,7 +32,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('layout_per_node.settings');
+    $config = $this->config('layout_per_node.settings.module_settings');
 
     $form['description'] = [
       '#markup' => 'General configuration options for the Layout Per Node module.',
@@ -89,7 +89,7 @@ class SettingsForm extends ConfigFormBase {
     $definitions = $this->getBuildOptions();
 
     foreach ($definitions as $id => $definition) {
-      $this->config('layout_per_node.settings')
+      $this->config('layout_per_node.settings.module_settings')
         ->set($definition['provider'], $values[$definition['provider']])
         ->save();
     }

@@ -1,3 +1,10 @@
+layout_per_node.settings:
+  type: config_entity
+  mapping:
+    module_settings:
+      type: sequence
+      sequence:
+        type: integer
 layout_per_node.*:
   type: config_entity
   label: 'Layout Per Node (per node type) settings'
