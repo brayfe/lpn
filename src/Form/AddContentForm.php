@@ -43,7 +43,7 @@ class AddContentForm extends FormBase {
       $form['content_blocks'] += $this->buildContentBlocks();
 
       // Determine which modules can provide content.
-      $config = \Drupal::config('layout_per_node.settings.module_settings')->get();
+      $config = \Drupal::config('layout_per_node.settings')->get('module_settings');
       $allowedContent = array_filter($config, function ($provider, $value) {
         return ($value && $value != '_core') ? $provider : NULL;}, ARRAY_FILTER_USE_BOTH);
 

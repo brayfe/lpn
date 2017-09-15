@@ -21,7 +21,7 @@ class SwitchLayoutsForm extends FormBase {
     if (isset($query['id'])) {
       $node = Node::load($query['id']);
       $layoutPluginManager = \Drupal::service('plugin.manager.core.layout');
-      $config = \Drupal::config('layout_per_node.' . $node->getType());
+      $config = \Drupal::config('layout_per_node.content_type.' . $node->getType());
       $allowed = array_filter($config->get('allowed'));
       $options = $layoutPluginManager->getLayoutOptions();
       $definitions = $layoutPluginManager->getDefinitions();

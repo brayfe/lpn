@@ -52,7 +52,7 @@ class LayoutPermissions implements ContainerInjectionInterface {
     $perms = [];
     // Generate node permissions for all node types.
     foreach (NodeType::loadMultiple() as $type) {
-      $config = $this->configFactory->get('layout_per_node.' . $type->id());
+      $config = $this->configFactory->get('layout_per_node.content_type.' . $type->id());
       $is_enabled = $config->get('enabled');
       if ($is_enabled) {
         $perms += $this->buildPermissions($type);

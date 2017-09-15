@@ -58,8 +58,8 @@ function layout_per_node_menu_local_tasks_alter(&$data, $route_name, RefinableCa
  * Save a layout entity with empty data upon initial node save.
  */
 function layout_per_node_node_insert(EntityInterface $entity) {
-  $config = \Drupal::config('layout_per_node.enabled');
-  $enabled = $config->get($entity->getType());
+  $config = \Drupal::config('layout_per_node.content_type.' . $entity->getType());
+  $enabled = $config->get('enabled');
   if ($enabled) {
     $layoutPerNodeManager = \Drupal::service('layout_per_node.manager');
     $layoutPerNodeManager->updateLayout($entity->id(), []);
@@ -73,8 +73,8 @@ function layout_per_node_node_insert(EntityInterface $entity) {
  * provided.
  */
 function layout_per_node_node_update(EntityInterface $entity) {
-  $config = \Drupal::config('layout_per_node.enabled');
-  $enabled = $config->get($entity->getType());
+  $config = \Drupal::config('layout_per_node.content_type.' . $entity->getType());
+  $enabled = $config->get('enabled');
   if ($enabled) {
     $new_revision = TRUE;
     // 1. First, we check that this is not an update triggered by "Save Layout",
@@ -128,7 +128,7 @@ function layout_per_node_form_node_type_edit_form_alter(&$form, FormStateInterfa
   Cache::invalidateTags(['layout_per_node:tabs']);
 
   $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
-  $config = \Drupal::config('layout_per_node.' . $node_type->id());
+  $config = \Drupal::config('layout_per_node.content_type.' . $node_type->id());
   $enabled = $config->get('enabled');
   $allowed = $config->get('allowed');
   $default_layouts = !empty($allowed) ? array_values($allowed) : [];
@@ -171,7 +171,7 @@ function layout_per_node_form_node_type_edit_form_alter(&$form, FormStateInterfa
 function layout_per_node_node_type_edit_form_submit($form, FormStateInterface $form_state) {
   $values = $form_state->getValues();
   $node_type = $form_state->getBuildInfo()['callback_object']->getEntity();
-  $config = \Drupal::service('config.factory')->getEditable('layout_per_node.' . $node_type->id());
+  $config = \Drupal::service('config.factory')->getEditable('layout_per_node.content_type.' . $node_type->id());
   if (isset($values['layout_per_node_enabled'])) {
     $config->set('enabled', $values['layout_per_node_enabled']);
     $config->save();
@@ -205,7 +205,7 @@ function layout_per_node_module_implements_alter(&$implementations, $hook) {
  */
 function layout_per_node_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
   if ($display instanceof EntityDisplayWithLayoutInterface && $entity->getEntityType()->id() == 'node') {
-    $enabled = \Drupal::config('layout_per_node.' . $entity->getType())->get('enabled');
+    $enabled = \Drupal::config('layout_per_node.content_type.' . $entity->getType())->get('enabled');
     if ($enabled) {
       \Drupal::classResolver()->getInstanceFromDefinition(LayoutEditorBuilder::class)
         ->buildView($build, $display);

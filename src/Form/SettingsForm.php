@@ -24,7 +24,7 @@ class SettingsForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'layout_per_node.settings.module_settings',
+      'layout_per_node.settings',
     ];
   }
 
@@ -32,7 +32,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('layout_per_node.settings.module_settings');
+    $config = $this->config('layout_per_node.settings')->get('module_settings');
 
     $form['description'] = [
       '#markup' => 'General configuration options for the Layout Per Node module.',
@@ -60,7 +60,7 @@ class SettingsForm extends ConfigFormBase {
       $examples = "ex: ";
       $form['options'][$machine_name] = [
         '#type' => 'checkbox',
-        '#default_value' => $config->get($machine_name),
+        '#default_value' => isset($config[$machine_name]) ? $config[$machine_name] : FALSE,
       ];
       // Limit number of example block names to 5.
       $count = 0;
