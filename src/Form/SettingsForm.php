@@ -89,11 +89,12 @@ class SettingsForm extends ConfigFormBase {
     $definitions = $this->getBuildOptions();
 
     foreach ($definitions as $id => $definition) {
-      $this->config('layout_per_node.settings.module_settings')
-        ->set($definition['provider'], $values[$definition['provider']])
-        ->save();
+        $enabled_modules[$definition['provider']] = $values[$definition['provider']];
     }
 
+    $this->config('layout_per_node.settings')
+      ->set('module_settings', $enabled_modules)
+      ->save();
     parent::submitForm($form, $form_state);
   }
 
