@@ -1,5 +1,2 @@
-node: 0
-system: 0
-user: 0
-views: 1
-core: 0
+module_settings:
+  views: 1
